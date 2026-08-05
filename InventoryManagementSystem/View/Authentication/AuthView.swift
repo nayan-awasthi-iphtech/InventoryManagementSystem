@@ -15,7 +15,28 @@ struct AuthView: View {
     @State private var name: String = ""
     @State private var isPasswordVisible: Bool = false
     @State private var isLogin: Bool = true
-    @State private var isLoggedIn: Bool = true
+    @State private var isLoggedIn: Bool = false
+    @State private var showAlert: Bool = false
+    
+    private var validCheck: Bool {
+        if isLogin {
+            return !email.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty &&
+            !password.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
+        } else {
+            return !email.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty &&
+            !password.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty &&
+            !name.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty &&
+            !contactNo.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
+        }
+    }
+    
+    private func clearTextFields() {
+        email = ""
+        password = ""
+        name = ""
+        contactNo = ""
+        isPasswordVisible = false
+    }
     
     var body: some View {
         NavigationStack {
@@ -128,10 +149,11 @@ struct AuthView: View {
                         .padding(.horizontal, 24)
                         
                         Button {
-                            if isLogin {
+                            if validCheck {
                                 isLoggedIn = true
+                                clearTextFields()
                             } else {
-                                // todo
+                                showAlert = true
                             }
                         } label: {
                             Text(isLogin ? "Login" : "Register")
@@ -169,8 +191,15 @@ struct AuthView: View {
                 }
                 .navigationDestination(isPresented: $isLoggedIn){
                     DashboardScreenView()
+                        .onAppear{
+                            clearTextFields()
+                        }
                 }
             }
+            .alert("Missing Information", isPresented: $showAlert){
+                Button("Cancel", role:.cancel) {}
+            } message: {
+                Text(isLogin ? "Please fill in both email and password." : "Please fill in all fields (Name, Email, Password, and Contact No).")            }
         }
     }
 }
