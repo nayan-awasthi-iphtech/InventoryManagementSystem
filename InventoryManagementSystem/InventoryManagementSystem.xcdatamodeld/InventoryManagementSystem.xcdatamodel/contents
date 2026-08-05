@@ -1,9 +1,91 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<model type="com.apple.IDECoreDataModeler.DataModel" documentVersion="1.0" lastSavedToolsVersion="1" systemVersion="11A491" minimumToolsVersion="Automatic" sourceLanguage="Swift" usedWithCloudKit="false" userDefinedModelVersionIdentifier="">
-    <entity name="Item" representedClassName="Item" syncable="YES" codeGenerationType="class">
+<model type="com.apple.IDECoreDataModeler.DataModel" documentVersion="1.0" lastSavedToolsVersion="24902" systemVersion="25F84" minimumToolsVersion="Automatic" sourceLanguage="Swift" userDefinedModelVersionIdentifier="">
+    <entity name="Admin" representedClassName="Admin" syncable="YES" codeGenerationType="class">
+        <attribute name="contact" optional="YES" attributeType="String"/>
+        <attribute name="email" optional="YES" attributeType="String"/>
+        <attribute name="id" optional="YES" attributeType="UUID" usesScalarValueType="NO"/>
+        <attribute name="name" optional="YES" attributeType="String"/>
+        <attribute name="password" optional="YES" attributeType="String"/>
         <attribute name="timestamp" optional="YES" attributeType="Date" usesScalarValueType="NO"/>
+        <relationship name="admin_category" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="Category" inverseName="category_admin" inverseEntity="Category"/>
+        <relationship name="admin_order" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="Admin" inverseName="admin_order" inverseEntity="Admin"/>
+        <relationship name="admin_product" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="Product" inverseName="product_admin" inverseEntity="Product"/>
+        <relationship name="admin_stackLog" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="StackLog" inverseName="stackLog_admin" inverseEntity="StackLog"/>
+        <relationship name="admin_supplier" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="Supplier" inverseName="supplier_admin" inverseEntity="Supplier"/>
+        <uniquenessConstraints>
+            <uniquenessConstraint>
+                <constraint value="id"/>
+            </uniquenessConstraint>
+        </uniquenessConstraints>
     </entity>
-    <elements>
-        <element name="Item" positionX="-63" positionY="-18" width="128" height="44"/>
-    </elements>
+    <entity name="Category" representedClassName="Category" syncable="YES" codeGenerationType="class">
+        <attribute name="id" optional="YES" attributeType="UUID" usesScalarValueType="NO"/>
+        <attribute name="name" optional="YES" attributeType="String"/>
+        <relationship name="category_admin" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="Admin" inverseName="admin_category" inverseEntity="Admin"/>
+        <relationship name="category_product" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="Product" inverseName="product_category" inverseEntity="Product"/>
+        <relationship name="category_supplier" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="Supplier" inverseName="supplier_category" inverseEntity="Supplier"/>
+        <uniquenessConstraints>
+            <uniquenessConstraint>
+                <constraint value="id"/>
+            </uniquenessConstraint>
+        </uniquenessConstraints>
+    </entity>
+    <entity name="Order" representedClassName="Order" syncable="YES" codeGenerationType="class">
+        <attribute name="id" optional="YES" attributeType="UUID" usesScalarValueType="NO"/>
+        <attribute name="orderDate" optional="YES" attributeType="Date" usesScalarValueType="NO"/>
+        <attribute name="orderNumber" optional="YES" attributeType="String"/>
+        <attribute name="orderType" optional="YES" attributeType="String"/>
+        <attribute name="status" optional="YES" attributeType="String"/>
+        <attribute name="totalAmount" optional="YES" attributeType="String"/>
+        <relationship name="admin_order" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="Admin"/>
+        <uniquenessConstraints>
+            <uniquenessConstraint>
+                <constraint value="id"/>
+            </uniquenessConstraint>
+        </uniquenessConstraints>
+    </entity>
+    <entity name="Product" representedClassName="Product" syncable="YES" codeGenerationType="class">
+        <attribute name="detail" optional="YES" attributeType="String"/>
+        <attribute name="id" optional="YES" attributeType="UUID" usesScalarValueType="NO"/>
+        <attribute name="imageData" optional="YES" attributeType="Binary"/>
+        <attribute name="name" optional="YES" attributeType="String"/>
+        <attribute name="price" optional="YES" attributeType="String"/>
+        <attribute name="quantity" optional="YES" attributeType="String"/>
+        <relationship name="product_admin" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="Admin" inverseName="admin_product" inverseEntity="Admin"/>
+        <relationship name="product_category" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="Category" inverseName="category_product" inverseEntity="Category"/>
+        <relationship name="product_Supplier" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="Supplier" inverseName="supplier_product" inverseEntity="Supplier"/>
+        <uniquenessConstraints>
+            <uniquenessConstraint>
+                <constraint value="id"/>
+            </uniquenessConstraint>
+        </uniquenessConstraints>
+    </entity>
+    <entity name="StackLog" representedClassName="StackLog" syncable="YES" codeGenerationType="class">
+        <attribute name="id" optional="YES" attributeType="UUID" usesScalarValueType="NO"/>
+        <attribute name="newQuantity" optional="YES" attributeType="String"/>
+        <attribute name="previousQuantity" optional="YES" attributeType="String"/>
+        <attribute name="quantityChanged" optional="YES" attributeType="String"/>
+        <attribute name="transactionType" optional="YES" attributeType="String"/>
+        <relationship name="stackLog_admin" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="Admin" inverseName="admin_stackLog" inverseEntity="Admin"/>
+        <uniquenessConstraints>
+            <uniquenessConstraint>
+                <constraint value="id"/>
+            </uniquenessConstraint>
+        </uniquenessConstraints>
+    </entity>
+    <entity name="Supplier" representedClassName="Supplier" syncable="YES" codeGenerationType="class">
+        <attribute name="address" optional="YES" attributeType="String"/>
+        <attribute name="contact" optional="YES" attributeType="String"/>
+        <attribute name="gstNumber" optional="YES" attributeType="String"/>
+        <attribute name="id" optional="YES" attributeType="UUID" usesScalarValueType="NO"/>
+        <attribute name="name" optional="YES" attributeType="String"/>
+        <relationship name="supplier_admin" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="Admin" inverseName="admin_supplier" inverseEntity="Admin"/>
+        <relationship name="supplier_category" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="Category" inverseName="category_supplier" inverseEntity="Category"/>
+        <relationship name="supplier_product" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="Product" inverseName="product_Supplier" inverseEntity="Product"/>
+        <uniquenessConstraints>
+            <uniquenessConstraint>
+                <constraint value="id"/>
+            </uniquenessConstraint>
+        </uniquenessConstraints>
+    </entity>
 </model>
