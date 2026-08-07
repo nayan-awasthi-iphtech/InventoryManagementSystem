@@ -55,6 +55,24 @@ struct AddEditProductView: View {
                     TextField("Barcode String", text: $productViewModel.productBarcode)
                 }
                 
+                Section("Classification"){
+                    Picker("Category", selection: $productViewModel.selectedCategory){
+                        Text("None").tag(Category?.none)
+//                        ForEach(doctorViewModel.doctors, id: \.objectID) { doctor in
+//                            Text(doctor.name ?? "Dr. Unknown")
+//                                .tag(Optional(doctor))
+//                        }
+                    }
+                    
+                    Picker("Supplier", selection: $productViewModel.selectedSupplier){
+                        Text("None").tag(Supplier?.none)
+//                        ForEach(doctorViewModel.doctors, id: \.objectID) { doctor in
+//                            Text(doctor.name ?? "Dr. Unknown")
+//                                .tag(Optional(doctor))
+//                        }
+                    }
+                }
+                
                 Section("Stock & Pricing"){
                     HStack{
                         Text("Price ($)")

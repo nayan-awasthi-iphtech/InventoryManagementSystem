@@ -44,13 +44,13 @@ class ProductViewModel: ObservableObject {
                 format: "name CONTAINS[cd] %@ OR sku CONTAINS[cd] %@ OR barcode CONTAINS[cd] %@",
                 trimmedSearch, trimmedSearch, trimmedSearch
             )
-            
-            do {
-                products = try viewContext.fetch(fetchRequest)
-            } catch {
-                print("Error in fetching products: \(error.localizedDescription)")
-                AlertMessage = "Unable to fetch products. Please try again."
-            }
+        }
+        
+        do {
+            products = try viewContext.fetch(fetchRequest)
+        } catch {
+            print("Error in fetching products: \(error.localizedDescription)")
+            AlertMessage = "Unable to fetch products. Please try again."
         }
     }
     
@@ -83,6 +83,8 @@ class ProductViewModel: ObservableObject {
         if let supplier = selectedSupplier {
             newProduct.product_Supplier = supplier
         }
+        
+        print("Product added successfully")
         
         return saveContext()
     }
@@ -155,8 +157,10 @@ class ProductViewModel: ObservableObject {
         do {
             try viewContext.save()
             fetchProducts()
+            print("Product saved successfully")
             return true
         } catch{
+            viewContext.rollback()
             print("Error in saving product: \(error.localizedDescription)")
             return false
         }

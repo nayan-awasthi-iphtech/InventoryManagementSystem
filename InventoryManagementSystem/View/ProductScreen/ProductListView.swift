@@ -9,21 +9,15 @@ import SwiftUI
 import CoreData
 
 struct ProductListView: View {
-
-    @Environment(\.managedObjectContext) private var viewContext
-
-    @FetchRequest(
-        sortDescriptors: [NSSortDescriptor(keyPath: \Product.name, ascending: true)],
-        animation: .default
-    )
-    private var products: FetchedResults<Product>
+    
+    @StateObject var productViewModel = ProductViewModel()
 
     @State private var showAddSheet: Bool = false
 
     var body: some View {
         NavigationStack {
             Group {
-                if products.isEmpty {
+                if productViewModel.products.isEmpty {
                     ContentUnavailableView(
                         "No Products",
                         systemImage: "cube.box",
@@ -31,10 +25,12 @@ struct ProductListView: View {
                     )
                 } else {
                     List {
-                        ForEach(products) { product in
-                            ProductRow(product: product)
+                        ForEach(productViewModel.products) { product in
+                            NavigationLink(destination: ProductDetailPage(product: product).environmentObject(productViewModel)){
+                                ProductRow(product: product)
+                            }
                         }
-                        .onDelete(perform: deleteProducts)
+                        .onDelete(perform: productViewModel.deleteProducts)
                     }
                     .listStyle(.insetGrouped)
                 }
@@ -50,15 +46,12 @@ struct ProductListView: View {
                 }
             }
             .sheet(isPresented: $showAddSheet) {
-                AddProductView()
+                AddEditProductView()
+                    .environmentObject(productViewModel)
             }
-        }
-    }
-
-    private func deleteProducts(offsets: IndexSet) {
-        withAnimation {
-            offsets.map { products[$0] }.forEach(viewContext.delete)
-            try? viewContext.save()
+            .onAppear{
+                productViewModel.fetchProducts()
+            }
         }
     }
 }
