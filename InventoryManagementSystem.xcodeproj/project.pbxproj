@@ -11,7 +11,7 @@
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
-		0B8D852930231C0100F5A39B /* InventoryManagementSystem */ = {
+		0B48F3E630245ADC0092D527 /* InventoryManagementSystem */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
 			path = InventoryManagementSystem;
 			sourceTree = "<group>";
@@ -32,8 +32,8 @@
 		0B8D851E30231C0100F5A39B = {
 			isa = PBXGroup;
 			children = (
-				0B8D852930231C0100F5A39B /* InventoryManagementSystem */,
 				0B8D852830231C0100F5A39B /* Products */,
+				0B48F3E630245ADC0092D527 /* InventoryManagementSystem */,
 			);
 			sourceTree = "<group>";
 		};
@@ -61,7 +61,7 @@
 			dependencies = (
 			);
 			fileSystemSynchronizedGroups = (
-				0B8D852930231C0100F5A39B /* InventoryManagementSystem */,
+				0B48F3E630245ADC0092D527 /* InventoryManagementSystem */,
 			);
 			name = InventoryManagementSystem;
 			packageProductDependencies = (

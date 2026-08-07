@@ -36,5 +36,7 @@ struct PersistenceController {
             }
         })
         container.viewContext.automaticallyMergesChangesFromParent = true
+        
+        print("Core Data path: \(NSPersistentContainer.defaultDirectoryURL())")
     }
 }

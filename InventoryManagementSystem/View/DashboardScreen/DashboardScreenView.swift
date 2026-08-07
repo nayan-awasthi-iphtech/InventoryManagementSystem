@@ -10,6 +10,8 @@ import SwiftUI
 struct DashboardScreenView: View {
 
     @Environment(\.dismiss) private var dismiss
+    @StateObject private var authViewModel = AuthViewModel()
+    @StateObject private var session = SessionManager.shared
     
     var body: some View {
         NavigationStack {
@@ -20,7 +22,6 @@ struct DashboardScreenView: View {
                 ScrollView(showsIndicators: false) {
                     VStack(alignment: .leading, spacing: 10) {
                         
-                        // Header with Title & Logout Button
                         HStack(alignment: .top) {
                             VStack(alignment: .leading, spacing: 2) {
                                 Text("Inventora")
@@ -35,10 +36,8 @@ struct DashboardScreenView: View {
                             
                             Spacer()
                             
-                            // MARK: - Logout Button
                             Button {
-                                // Dismisses back to AuthView / Login Screen
-                                dismiss()
+                                session.logout()
                             } label: {
                                 HStack(spacing: 6) {
                                     Image(systemName: "rectangle.portrait.and.arrow.right")
@@ -56,7 +55,6 @@ struct DashboardScreenView: View {
                             .padding(.top, 4)
                         }
                         
-                        // Metric Cards Grid
                         LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible())], spacing: 12) {
                             MetricCard(
                                 iconName: "square.fill",

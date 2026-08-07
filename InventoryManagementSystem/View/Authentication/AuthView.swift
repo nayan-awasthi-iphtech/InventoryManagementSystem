@@ -9,40 +9,14 @@ import SwiftUI
 
 struct AuthView: View {
     
-    @State private var email: String = ""
-    @State private var password: String = ""
-    @State private var contactNo: String = ""
-    @State private var name: String = ""
-    @State private var isPasswordVisible: Bool = false
-    @State private var isLogin: Bool = true
-    @State private var isLoggedIn: Bool = false
-    @State private var showAlert: Bool = false
-    
-    private var validCheck: Bool {
-        if isLogin {
-            return !email.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty &&
-            !password.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
-        } else {
-            return !email.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty &&
-            !password.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty &&
-            !name.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty &&
-            !contactNo.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
-        }
-    }
-    
-    private func clearTextFields() {
-        email = ""
-        password = ""
-        name = ""
-        contactNo = ""
-        isPasswordVisible = false
-    }
+    @StateObject var authViewModel = AuthViewModel()
+    @ObservedObject private var sessionManager = SessionManager.shared
     
     var body: some View {
         NavigationStack {
             ZStack {
                 
-                Color(uiColor: .systemRed).opacity(0.3)
+                Color(uiColor: .systemTeal).opacity(0.2)
                     .ignoresSafeArea()
                 
                 ScrollView(showsIndicators: false) {
@@ -55,7 +29,7 @@ struct AuthView: View {
                                 .frame(height: 220)
                             
                             VStack {
-                                Image(systemName: isLogin ? "box.truck.badge.clock.fill" : "building.2.crop.circle.fill")
+                                Image(systemName: authViewModel.isLogin ? "box.truck.badge.clock.fill" : "building.2.crop.circle.fill")
                                     .resizable()
                                     .scaledToFit()
                                     .frame(width: 100, height: 100)
@@ -66,12 +40,12 @@ struct AuthView: View {
                         .padding(.top, 10)
                         
                         VStack(spacing: 6) {
-                            Text(isLogin ? "Login to Access Your": "Register to access")
+                            Text(authViewModel.isLogin ? "Login to Access Your": "Register to access")
                                 .font(.title2)
                                 .fontWeight(.bold)
                                 .foregroundStyle(Color.brown)
                             
-                            Text(isLogin ? "Inventory Dashboard" : "Inventory and Stocks")
+                            Text(authViewModel.isLogin ? "Inventory Dashboard" : "Inventory and Stocks")
                                 .font(.title2)
                                 .fontWeight(.bold)
                                 .foregroundStyle(.blue)
@@ -80,11 +54,11 @@ struct AuthView: View {
                         
                         VStack(spacing: 14) {
                             
-                            if !isLogin {
+                            if !authViewModel.isLogin {
                                 HStack(spacing: 12) {
                                     Image(systemName: "person.fill")
                                         .foregroundStyle(.gray)
-                                    TextField("Enter your name", text: $name)
+                                    TextField("Enter your name", text: $authViewModel.name)
                                         .keyboardType(.emailAddress)
                                         .textInputAutocapitalization(.never)
                                 }
@@ -98,7 +72,7 @@ struct AuthView: View {
                             HStack(spacing: 12) {
                                 Image(systemName: "envelope")
                                     .foregroundStyle(.gray)
-                                TextField("Enter your email", text: $email)
+                                TextField("Enter your email", text: $authViewModel.email)
                                     .keyboardType(.emailAddress)
                                     .textInputAutocapitalization(.never)
                             }
@@ -112,16 +86,16 @@ struct AuthView: View {
                                 Image(systemName: "lock")
                                     .foregroundStyle(.gray)
                                 
-                                if isPasswordVisible {
-                                    TextField("Enter your password", text: $password)
+                                if authViewModel.isPasswordVisible {
+                                    TextField("Enter your password", text: $authViewModel.password)
                                 } else {
-                                    SecureField("Enter your password", text: $password)
+                                    SecureField("Enter your password", text: $authViewModel.password)
                                 }
                                 
                                 Button {
-                                    isPasswordVisible.toggle()
+                                    authViewModel.isPasswordVisible.toggle()
                                 } label: {
-                                    Image(systemName: isPasswordVisible ? "eye.slash" : "eye")
+                                    Image(systemName: authViewModel.isPasswordVisible ? "eye.slash" : "eye")
                                         .foregroundStyle(.gray)
                                 }
                             }
@@ -131,12 +105,12 @@ struct AuthView: View {
                             .clipShape(Capsule())
                             .overlay(Capsule().stroke(Color.gray.opacity(0.2), lineWidth: 1))
                             
-                            if !isLogin {
+                            if !authViewModel.isLogin {
                                 HStack(spacing: 12) {
                                     Image(systemName: "phone.fill")
                                         .foregroundStyle(.gray)
-                                    TextField("Enter your Contact Number", text: $contactNo)
-                                        .keyboardType(.emailAddress)
+                                    TextField("Enter your Contact Number", text: $authViewModel.contactNo)
+                                        .keyboardType(.numberPad)
                                         .textInputAutocapitalization(.never)
                                 }
                                 .padding(.horizontal, 16)
@@ -149,20 +123,15 @@ struct AuthView: View {
                         .padding(.horizontal, 24)
                         
                         Button {
-                            if validCheck {
-                                isLoggedIn = true
-                                clearTextFields()
-                            } else {
-                                showAlert = true
-                            }
+                            authViewModel.handleAuth()
                         } label: {
-                            Text(isLogin ? "Login" : "Register")
+                            Text(authViewModel.isLogin ? "Login" : "Register")
                                 .font(.headline)
                                 .fontWeight(.bold)
                                 .foregroundStyle(.white)
                                 .frame(maxWidth: .infinity)
                                 .frame(height: 50)
-                                .background(Color.red.opacity(0.7))
+                                .background(Color.blue.opacity(0.7))
                                 .clipShape(Capsule())
                         }
                         .padding(.horizontal, 24)
@@ -170,16 +139,16 @@ struct AuthView: View {
                         
                         
                         HStack(spacing: 4) {
-                            Text(isLogin ? "Don't have an account?" : "Already have an account?")
+                            Text(authViewModel.isLogin ? "Don't have an account?" : "Already have an account?")
                                 .font(.caption)
                                 .foregroundStyle(.gray)
                             
                             Button {
                                 withAnimation {
-                                    isLogin.toggle()
+                                    authViewModel.isLogin.toggle()
                                 }
                             } label: {
-                                Text(isLogin ? "Create an account" :  "Please Login")
+                                Text(authViewModel.isLogin ? "Create an account" :  "Please Login")
                                     .font(.caption)
                                     .fontWeight(.bold)
                                     .foregroundStyle(Color.blue)
@@ -189,17 +158,18 @@ struct AuthView: View {
                         .padding(.bottom, 20)
                     }
                 }
-                .navigationDestination(isPresented: $isLoggedIn){
-                    DashboardScreenView()
+                .navigationDestination(isPresented: $sessionManager.isLoggedIn){
+                    RootTabView()
                         .onAppear{
-                            clearTextFields()
+                            authViewModel.clearFields()
                         }
                 }
             }
-            .alert("Missing Information", isPresented: $showAlert){
+            .alert("Missing Information", isPresented: $authViewModel.showAlert){
                 Button("Cancel", role:.cancel) {}
             } message: {
-                Text(isLogin ? "Please fill in both email and password." : "Please fill in all fields (Name, Email, Password, and Contact No).")            }
+                Text(authViewModel.alertMessage)
+            }
         }
     }
 }
