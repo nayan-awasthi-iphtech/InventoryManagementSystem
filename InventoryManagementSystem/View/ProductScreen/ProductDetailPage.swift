@@ -63,7 +63,7 @@ struct ProductDetailPage: View {
                     Spacer()
                     
                     VStack(alignment: .trailing, spacing: 4) {
-                        Text("$\(product.price, specifier: "%.2f")")
+                        Text("₹\(product.price, specifier: "%.2f")")
                             .font(.title2)
                             .fontWeight(.bold)
                             .foregroundStyle(.green)

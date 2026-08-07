@@ -46,17 +46,18 @@ class CategoryViewModel: ObservableObject {
             return false
         }
         
-        if categories.contains(where: { $0.name?.lowercased() == cleanedName.lowercased()}){
+        if categories.contains(where: { $0.name?.lowercased() == cleanedName.lowercased() }) {
+            alertMessage = "This name is already registered. Please use a different name."
             showAlert = true
-            alertMessage = "This name is already registered. Please use a different name for category"
             return false
         }
         
         let newCategory = Category(context: viewContext)
+        newCategory.id = UUID()
         newCategory.name = cleanedName
         
-        if let admin = SelectedAdmin {
-            newCategory.category_admin = admin
+        if let ownerAdmin = admin ?? SelectedAdmin ?? SessionManager.shared.currentAdmin {
+            newCategory.category_admin = ownerAdmin
         }
         
         if let product = SelectedProduct {
@@ -70,6 +71,12 @@ class CategoryViewModel: ObservableObject {
         let cleanedName = categoryName.trimmingCharacters(in: .whitespacesAndNewlines)
         guard !cleanedName.isEmpty else {
             alertMessage = "Please enter a name for the category"
+            showAlert = true
+            return false
+        }
+        
+        if categories.contains(where: { $0.objectID != category.objectID && $0.name?.lowercased() == cleanedName.lowercased() }) {
+            alertMessage = "This name is already registered. Please use a different name."
             showAlert = true
             return false
         }
@@ -103,7 +110,7 @@ class CategoryViewModel: ObservableObject {
         do {
             try viewContext.save()
             fetchCategories()
-            print("Category saved successfully")
+            print("Category saved successfully with the name \(categoryName)")
             return true
         } catch{
             print("Could not save context: \(error.localizedDescription)")

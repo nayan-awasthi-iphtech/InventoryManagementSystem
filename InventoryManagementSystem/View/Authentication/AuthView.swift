@@ -9,8 +9,12 @@ import SwiftUI
 
 struct AuthView: View {
     
-    @StateObject var authViewModel = AuthViewModel()
+    @StateObject var authViewModel: AuthViewModel
     @ObservedObject private var sessionManager = SessionManager.shared
+    
+    init(initialMode: Bool = true) {
+        _authViewModel = StateObject(wrappedValue: AuthViewModel(isLogin: initialMode))
+    }
     
     var body: some View {
         NavigationStack {

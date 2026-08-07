@@ -7,6 +7,7 @@
 
 import SwiftUI
 import PhotosUI
+import CoreData
 
 struct AddEditProductView: View {
     
@@ -58,18 +59,18 @@ struct AddEditProductView: View {
                 Section("Classification"){
                     Picker("Category", selection: $productViewModel.selectedCategory){
                         Text("None").tag(Category?.none)
-//                        ForEach(doctorViewModel.doctors, id: \.objectID) { doctor in
-//                            Text(doctor.name ?? "Dr. Unknown")
-//                                .tag(Optional(doctor))
-//                        }
+                        ForEach(productViewModel.categories, id: \.objectID) { category in
+                            Text(category.name ?? "Unnamed Category")
+                                .tag(Optional(category))
+                        }
                     }
                     
                     Picker("Supplier", selection: $productViewModel.selectedSupplier){
                         Text("None").tag(Supplier?.none)
-//                        ForEach(doctorViewModel.doctors, id: \.objectID) { doctor in
-//                            Text(doctor.name ?? "Dr. Unknown")
-//                                .tag(Optional(doctor))
-//                        }
+                        ForEach(productViewModel.suppliers, id: \.objectID) { supplier in
+                            Text(supplier.name ?? "Unnamed Supplier")
+                                .tag(Optional(supplier))
+                        }
                     }
                 }
                 

@@ -13,6 +13,8 @@ class ProductViewModel: ObservableObject {
     
     @Published var products: [Product] = []
     @Published var searchText: String = ""
+    @Published var categories: [Category] = []
+    @Published var suppliers: [Supplier] = []
     
     @Published var productName: String = ""
     @Published var productPrice: String = ""
@@ -32,6 +34,30 @@ class ProductViewModel: ObservableObject {
     
     init(){
         fetchProducts()
+        fetchCategories()
+        fetchSuppliers()
+    }
+    
+    func fetchCategories(){
+        let request: NSFetchRequest<Category> = Category.fetchRequest()
+        request.sortDescriptors = [NSSortDescriptor(keyPath: \Category.name, ascending: true)]
+        
+        do {
+            categories = try viewContext.fetch(request)
+        } catch {
+            print("Error in fetching categories: \(error.localizedDescription)")
+        }
+    }
+    
+    func fetchSuppliers(){
+        let request: NSFetchRequest<Supplier> = Supplier.fetchRequest()
+        request.sortDescriptors = [NSSortDescriptor(keyPath: \Supplier.name, ascending: true)]
+        
+        do {
+            suppliers = try viewContext.fetch(request)
+        } catch {
+            print("Error in fetching suppliers: \(error.localizedDescription)")
+        }
     }
     
     func fetchProducts(){

@@ -16,12 +16,16 @@ class AuthViewModel: ObservableObject {
     @Published var name = ""
     @Published var contactNo = ""
     
-    @Published var isLogin = true
+    @Published var isLogin: Bool
     @Published var isPasswordVisible = false
     @Published var showAlert = false
     @Published var alertMessage = ""
     
     private let viewContext = PersistenceController.shared.container.viewContext
+    
+    init(isLogin: Bool = true) {
+        self.isLogin = isLogin
+    }
     
     var isValidEmail: Bool {
         let trimmedEmail = email.trimmingCharacters(in: .whitespacesAndNewlines)

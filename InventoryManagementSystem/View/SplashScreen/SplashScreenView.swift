@@ -20,7 +20,7 @@ struct SplashScreenView: View {
                 if session.isLoggedIn {
                     RootTabView()
                 } else {
-                    AuthView()
+                    LandingPageView()
                 }
             } else {
                 ZStack {

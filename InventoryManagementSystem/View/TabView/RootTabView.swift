@@ -20,6 +20,10 @@ struct RootTabView: View {
                 .tabItem {
                     Label("Products", systemImage: "cube.box.fill")
                 }
+            CategoryListView()
+                .tabItem {
+                    Label("Categories", systemImage: "rectangle.stack.badge.person.crop")
+                }
         }
         .tint(.blue)
     }
