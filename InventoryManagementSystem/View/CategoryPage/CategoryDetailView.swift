@@ -35,18 +35,23 @@ struct CategoryDetailView: View {
     }
     
     var body: some View {
-        ScrollView(showsIndicators: false) {
-            VStack(spacing: 16) {
-                
-                header
-                
-                statsGrid
-                
-                productsSection
+        
+        ZStack{
+            
+            AppTheme.background
+                .ignoresSafeArea()
+            ScrollView(showsIndicators: false) {
+                VStack(spacing: 16) {
+                    
+                    header
+                    
+                    statsGrid
+                    
+                    productsSection
+                }
+                .padding()
             }
-            .padding()
         }
-        .background(Color(.systemGroupedBackground))
         .navigationTitle("Category")
         .navigationBarTitleDisplayMode(.inline)
         .toolbar {

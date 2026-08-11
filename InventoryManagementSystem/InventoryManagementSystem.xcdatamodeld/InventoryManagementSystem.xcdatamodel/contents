@@ -4,6 +4,7 @@
         <attribute name="contact" optional="YES" attributeType="String"/>
         <attribute name="email" optional="YES" attributeType="String"/>
         <attribute name="id" optional="YES" attributeType="UUID" usesScalarValueType="NO"/>
+        <attribute name="imageData" optional="YES" attributeType="Binary"/>
         <attribute name="name" optional="YES" attributeType="String"/>
         <attribute name="password" optional="YES" attributeType="String"/>
         <attribute name="timestamp" optional="YES" attributeType="Date" usesScalarValueType="NO"/>
@@ -23,6 +24,7 @@
         <attribute name="name" optional="YES" attributeType="String"/>
         <relationship name="category_admin" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="Admin" inverseName="admin_category" inverseEntity="Admin"/>
         <relationship name="category_product" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="Product" inverseName="product_category" inverseEntity="Product"/>
+        <relationship name="category_supplier" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="Supplier" inverseName="supplier_category" inverseEntity="Supplier"/>
         <uniquenessConstraints>
             <uniquenessConstraint>
                 <constraint value="id"/>
@@ -69,7 +71,7 @@
         <relationship name="product_admin" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="Admin" inverseName="admin_product" inverseEntity="Admin"/>
         <relationship name="product_category" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="Category" inverseName="category_product" inverseEntity="Category"/>
         <relationship name="product_orderItem" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="OrderItem" inverseName="orderItem_product" inverseEntity="OrderItem"/>
-        <relationship name="product_stockLog" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="StockLog" inverseName="stockLog_product" inverseEntity="StockLog"/>
+        <relationship name="product_stockLog" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="StockLog" inverseName="stockLog_product" inverseEntity="StockLog"/>
         <relationship name="product_Supplier" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="Supplier" inverseName="supplier_product" inverseEntity="Supplier"/>
         <uniquenessConstraints>
             <uniquenessConstraint>
@@ -96,8 +98,11 @@
         <attribute name="contact" optional="YES" attributeType="String"/>
         <attribute name="gstNumber" optional="YES" attributeType="String"/>
         <attribute name="id" optional="YES" attributeType="UUID" usesScalarValueType="NO"/>
+        <attribute name="imageData" optional="YES" attributeType="Binary"/>
         <attribute name="name" optional="YES" attributeType="String"/>
+        <attribute name="supplierDetail" optional="YES" attributeType="String"/>
         <relationship name="supplier_admin" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="Admin" inverseName="admin_supplier" inverseEntity="Admin"/>
+        <relationship name="supplier_category" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="Category" inverseName="category_supplier" inverseEntity="Category"/>
         <relationship name="supplier_order" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="Order" inverseName="order_supplier" inverseEntity="Order"/>
         <relationship name="supplier_product" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="Product" inverseName="product_Supplier" inverseEntity="Product"/>
         <uniquenessConstraints>

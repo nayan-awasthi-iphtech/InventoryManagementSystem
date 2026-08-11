@@ -1,9 +1,9 @@
-//
-//  ProductDetailPage.swift
-//  InventoryManagementSystem
-//
-//  Created by iPHTech 30 on 07/08/26.
-//
+////
+////  ProductDetailPage.swift
+////  InventoryManagementSystem
+////
+////  Created by iPHTech 30 on 07/08/26.
+
 
 import SwiftUI
 import CoreData
@@ -16,159 +16,163 @@ struct ProductDetailPage: View {
     @StateObject private var viewModel = ProductViewModel()
     
     var body: some View {
-        ScrollView{
-            VStack(spacing: 16) {
-                
-                if let data = product.imageData , let image = UIImage(data: data) {
-                    Image(uiImage: image)
-                        .resizable()
-                        .scaledToFill()
-                        .frame(width: 150, height: 150)
-                        .clipShape(RoundedRectangle(cornerRadius: 16))
-                } else {
-                    ZStack {
-                        RoundedRectangle(cornerRadius: 16)
-                            .fill(Color(.systemGray6))
-                            .frame(width:160, height: 150)
+        ZStack{
+            
+            AppTheme.background
+                .ignoresSafeArea()
+            ScrollView{
+                VStack(spacing: 16) {
+                    
+                    if let data = product.imageData , let image = UIImage(data: data) {
+                        Image(uiImage: image)
+                            .resizable()
+                            .scaledToFill()
+                            .frame(width: 150, height: 150)
+                            .clipShape(RoundedRectangle(cornerRadius: 16))
+                    } else {
+                        ZStack {
+                            RoundedRectangle(cornerRadius: 16)
+                                .fill(Color(.systemGray6))
+                                .frame(width:160, height: 150)
+                            
+                            VStack(spacing: 8) {
+                                Image(systemName: "shippingbox.fill")
+                                    .font(.system(size: 48))
+                                    .foregroundStyle(.gray)
+                                Text("No Image Available")
+                                    .font(.caption)
+                                    .foregroundStyle(.gray)
+                            }
+                        }
+                    }
+                    
+                    HStack(alignment: .top) {
+                        VStack(alignment: .leading, spacing: 6) {
+                            Text(product.name ?? "")
+                                .font(.title2)
+                                .fontWeight(.bold)
+                            
+                            if let categoryName = product.product_category?.name {
+                                Text(categoryName)
+                                    .font(.caption)
+                                    .fontWeight(.medium)
+                                    .padding(.horizontal, 10)
+                                    .padding(.vertical, 4)
+                                    .background(Color.blue.opacity(0.12))
+                                    .foregroundStyle(.blue)
+                                    .clipShape(Capsule())
+                            }
+                        }
                         
-                        VStack(spacing: 8) {
-                            Image(systemName: "shippingbox.fill")
-                                .font(.system(size: 48))
-                                .foregroundStyle(.gray)
-                            Text("No Image Available")
-                                .font(.caption)
-                                .foregroundStyle(.gray)
+                        Spacer()
+                        
+                        VStack(alignment: .trailing, spacing: 4) {
+                            Text("₹\(product.price, specifier: "%.2f")")
+                                .font(.title2)
+                                .fontWeight(.bold)
+                                .foregroundStyle(.green)
+                            
+                            HStack(spacing: 4) {
+                                Circle()
+                                    .fill(product.quantity < 5 ? Color.red : Color.green)
+                                    .frame(width: 8, height: 8)
+                                Text("\(product.quantity) in stock")
+                                    .font(.caption)
+                                    .foregroundStyle(.secondary)
+                            }
                         }
                     }
                 }
+                .padding()
+                .background(Color(.secondarySystemGroupedBackground))
+                .clipShape(RoundedRectangle(cornerRadius: 20))
                 
-                HStack(alignment: .top) {
-                    VStack(alignment: .leading, spacing: 6) {
-                        Text(product.name ?? "")
-                            .font(.title2)
-                            .fontWeight(.bold)
-                        
-                        if let categoryName = product.product_category?.name {
-                            Text(categoryName)
-                                .font(.caption)
-                                .fontWeight(.medium)
-                                .padding(.horizontal, 10)
-                                .padding(.vertical, 4)
-                                .background(Color.blue.opacity(0.12))
-                                .foregroundStyle(.blue)
-                                .clipShape(Capsule())
-                        }
+                LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible())], spacing: 10){
+                    InfoTile(title: "SKU", value: product.sku ?? "N/A", icon: "barcode")
+                    InfoTile(title: "Barcode", value: product.barcode ?? "N/A", icon: "qrcode")
+                    InfoTile(title: "Category", value: product.product_category?.name ?? "", icon: "folder")
+                    InfoTile(title: "Supplier", value: product.product_Supplier?.name ?? "", icon: "building.2")
+                }
+                
+                
+                VStack(alignment: .leading, spacing: 12) {
+                    HStack(spacing: 8) {
+                        Image(systemName: "folder.badge.gearshape")
+                            .font(.headline)
+                            .foregroundStyle(.blue)
+                        Text("Classification")
+                            .font(.headline)
                     }
                     
-                    Spacer()
+                    Divider()
                     
-                    VStack(alignment: .trailing, spacing: 4) {
-                        Text("₹\(product.price, specifier: "%.2f")")
-                            .font(.title2)
-                            .fontWeight(.bold)
-                            .foregroundStyle(.green)
-                        
-                        HStack(spacing: 4) {
-                            Circle()
-                                .fill(product.quantity < 5 ? Color.red : Color.green)
-                                .frame(width: 8, height: 8)
-                            Text("\(product.quantity) in stock")
-                                .font(.caption)
+                    HStack {
+                        HStack(spacing: 8) {
+                            Image(systemName: "folder")
+                                .foregroundStyle(.secondary)
+                                .frame(width: 20)
+                            Text("Category")
+                                .font(.subheadline)
+                                .fontWeight(.bold)
                                 .foregroundStyle(.secondary)
                         }
-                    }
-                }
-            }
-            .padding()
-            .background(Color(.secondarySystemGroupedBackground))
-            .clipShape(RoundedRectangle(cornerRadius: 20))
-            
-            LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible())], spacing: 10){
-                InfoTile(title: "SKU", value: product.sku ?? "N/A", icon: "barcode")
-                InfoTile(title: "Barcode", value: product.barcode ?? "N/A", icon: "qrcode")
-                InfoTile(title: "Category", value: product.product_category?.name ?? "", icon: "folder")
-                InfoTile(title: "Supplier", value: product.product_Supplier?.name ?? "", icon: "building.2")
-            }
-            
-            
-            VStack(alignment: .leading, spacing: 12) {
-                HStack(spacing: 8) {
-                    Image(systemName: "folder.badge.gearshape")
-                        .font(.headline)
-                        .foregroundStyle(.blue)
-                    Text("Classification")
-                        .font(.headline)
-                }
-                
-                Divider()
-                
-                HStack {
-                    HStack(spacing: 8) {
-                        Image(systemName: "folder")
-                            .foregroundStyle(.secondary)
-                            .frame(width: 20)
-                        Text("Category")
+                        
+                        Spacer()
+                        
+                        Text(product.product_category?.name ?? "Uncategorized")
                             .font(.subheadline)
-                            .fontWeight(.bold)
-                            .foregroundStyle(.secondary)
+                            .fontWeight(.medium)
+                            .foregroundStyle(.primary)
                     }
                     
-                    Spacer()
+                    Divider()
+                        .padding(.leading, 28)
                     
-                    Text(product.product_category?.name ?? "Uncategorized")
-                        .font(.subheadline)
-                        .fontWeight(.medium)
-                        .foregroundStyle(.primary)
-                }
-                
-                Divider()
-                    .padding(.leading, 28)
-                
-                HStack {
-                    HStack(spacing: 8) {
-                        Image(systemName: "building.2")
-                            .foregroundStyle(.secondary)
-                            .frame(width: 20)
-                        Text("Supplier")
+                    HStack {
+                        HStack(spacing: 8) {
+                            Image(systemName: "building.2")
+                                .foregroundStyle(.secondary)
+                                .frame(width: 20)
+                            Text("Supplier")
+                                .font(.subheadline)
+                                .fontWeight(.bold)
+                                .foregroundStyle(.secondary)
+                        }
+                        
+                        Spacer()
+                        
+                        Text(product.product_Supplier?.name ?? "No Supplier")
                             .font(.subheadline)
-                            .fontWeight(.bold)
-                            .foregroundStyle(.secondary)
+                            .fontWeight(.medium)
+                            .foregroundStyle(.primary)
+                    }
+                }
+                .padding()
+                .frame(maxWidth: .infinity, alignment: .leading)
+                .background(Color(.secondarySystemGroupedBackground))
+                .clipShape(RoundedRectangle(cornerRadius: 16))
+                
+                VStack(alignment: .leading, spacing: 10){
+                    HStack {
+                        Image(systemName: "doc.text")
+                            .foregroundStyle(.blue)
+                        Text("Description")
+                            .font(.headline)
                     }
                     
-                    Spacer()
+                    Divider()
                     
-                    Text(product.product_Supplier?.name ?? "No Supplier")
+                    Text((product.detail?.isEmpty == false) ? product.detail! : "No detail for this product is available")
                         .font(.subheadline)
-                        .fontWeight(.medium)
-                        .foregroundStyle(.primary)
+                        .foregroundStyle(.secondary)
+                        .lineSpacing(4)
                 }
+                .padding()
+                .frame(maxWidth: .infinity, alignment: .leading)
+                .background(Color(.secondarySystemGroupedBackground))
+                .clipShape(RoundedRectangle(cornerRadius: 16))
             }
-            .padding()
-            .frame(maxWidth: .infinity, alignment: .leading)
-            .background(Color(.secondarySystemGroupedBackground))
-            .clipShape(RoundedRectangle(cornerRadius: 16))
-            
-            VStack(alignment: .leading, spacing: 10){
-                HStack {
-                    Image(systemName: "doc.text")
-                        .foregroundStyle(.blue)
-                    Text("Description")
-                        .font(.headline)
-                }
-                
-                Divider()
-                
-                Text((product.detail?.isEmpty == false) ? product.detail! : "No detail for this product is available")
-                    .font(.subheadline)
-                    .foregroundStyle(.secondary)
-                    .lineSpacing(4)
-            }
-            .padding()
-            .frame(maxWidth: .infinity, alignment: .leading)
-            .background(Color(.secondarySystemGroupedBackground))
-            .clipShape(RoundedRectangle(cornerRadius: 16))
         }
-        .background(Color(.secondarySystemBackground))
         .navigationBarTitleDisplayMode(.inline)
         .navigationTitle("Product Overiew")
         .toolbar{
@@ -248,3 +252,5 @@ struct InfoTile: View {
             .environmentObject(ProductViewModel())
     }
 }
+
+

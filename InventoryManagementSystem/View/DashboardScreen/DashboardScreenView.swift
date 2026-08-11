@@ -6,17 +6,19 @@
 //
 
 import SwiftUI
+import CoreData
 
 struct DashboardScreenView: View {
 
     @Environment(\.dismiss) private var dismiss
     @StateObject private var authViewModel = AuthViewModel()
     @StateObject private var session = SessionManager.shared
+    @StateObject private var dashboardViewModel = DashboardViewModel()
     
     var body: some View {
         NavigationStack {
             ZStack {
-                Color(uiColor: .systemGroupedBackground)
+                AppTheme.background
                     .ignoresSafeArea()
                 
                 ScrollView(showsIndicators: false) {
@@ -59,55 +61,88 @@ struct DashboardScreenView: View {
                             MetricCard(
                                 iconName: "square.fill",
                                 iconColor: .blue,
-                                mainValue: "1,284",
+                                mainValue: "\(dashboardViewModel.totalProducts)",
                                 label: "Total Products",
-                                subtext: "+12 this week",
+                                subtext: dashboardViewModel.totalProducts == 1 ? "1 product listed" : "\(dashboardViewModel.totalProducts) products listed",
                                 subtextColor: .gray
                             )
                             
                             MetricCard(
                                 iconName: "square.fill",
                                 iconColor: .orange,
-                                mainValue: "34",
+                                mainValue: "\(dashboardViewModel.totalStock)",
+                                label: "Total Stock",
+                                subtext: "Units in inventory",
+                                subtextColor: .gray
+                            )
+                            
+                            MetricCard(
+                                iconName: "square.fill",
+                                iconColor: .orange,
+                                mainValue: "\(dashboardViewModel.lowStockCount)",
                                 label: "Low Stock",
-                                subtext: "Needs attention",
+                                subtext: dashboardViewModel.lowStockCount == 0 ? "All good" : "Needs attention",
                                 subtextColor: .orange
                             )
                             
                             MetricCard(
                                 iconName: "square.fill",
                                 iconColor: .red,
-                                mainValue: "8",
+                                mainValue: "\(dashboardViewModel.outOfStockCount)",
                                 label: "Out of Stock",
-                                subtext: "Urgent action",
+                                subtext: dashboardViewModel.outOfStockCount == 0 ? "Stock available" : "Urgent action",
                                 subtextColor: .red
                             )
                             
                             MetricCard(
                                 iconName: "square.fill",
-                                iconColor: .blue,
-                                mainValue: "57",
+                                iconColor: .indigo,
+                                mainValue: "\(dashboardViewModel.ordersToday)",
                                 label: "Orders Today",
-                                subtext: "+6 from yesterday",
+                                subtext: dashboardViewModel.ordersToday == 1 ? "1 order placed" : "\(dashboardViewModel.ordersToday) orders placed",
+                                subtextColor: .gray
+                            )
+                            
+                            MetricCard(
+                                iconName: "square.fill",
+                                iconColor: .teal,
+                                mainValue: String(format: "₹%.0f", dashboardViewModel.totalStockValue),
+                                label: "Inventory Value",
+                                subtext: "Value of total stock",
+                                subtextColor: .gray
+                            )
+                            
+                            MetricCard(
+                                iconName: "square.fill",
+                                iconColor: .green,
+                                mainValue: "\(dashboardViewModel.suppliers.count)",
+                                label: "Suppliers",
+                                subtext: "Registered suppliers",
+                                subtextColor: .gray
+                            )
+                            
+                            MetricCard(
+                                iconName: "square.fill",
+                                iconColor: .purple,
+                                mainValue: "\(dashboardViewModel.categories.count)",
+                                label: "Categories",
+                                subtext: "Product categories",
                                 subtextColor: .gray
                             )
                         }
                         
-                        RevenueCard()
+                        RevenueCard(revenue: dashboardViewModel.monthlyRevenue, changePercent: dashboardViewModel.revenueChangePercent)
                         
-                        VStack(alignment: .leading, spacing: 4) {
-                            Text("RECENT ORDERS")
-                                .font(.caption)
-                                .fontWeight(.semibold)
-                                .foregroundStyle(.gray)
-                                .padding(.top, 8)
-                        }
+                        RecentOrdersSection(orders: dashboardViewModel.orders)
                     }
                     .padding(.horizontal, 16)
                     .padding(.bottom, 20)
                 }
             }
             .navigationBarHidden(true)
+            .onAppear {
+                dashboardViewModel.fetchAllData()
+            }
         }
     }
 }
@@ -149,9 +184,125 @@ struct MetricCard: View {
     }
 }
 
+struct RecentOrdersSection: View {
+    let orders: [Order]
+    
+    private var recentOrders: [Order] {
+        Array(orders.prefix(5))
+    }
+    
+    var body: some View {
+        VStack(alignment: .leading, spacing: 10) {
+            Text("RECENT ORDERS")
+                .font(.caption)
+                .fontWeight(.semibold)
+                .foregroundStyle(.gray)
+                .padding(.top, 8)
+            
+            if recentOrders.isEmpty {
+                VStack(spacing: 10) {
+                    Image(systemName: "doc.text")
+                        .font(.system(size: 40))
+                        .foregroundStyle(.gray.opacity(0.5))
+                    Text("No Orders Yet")
+                        .font(.subheadline)
+                        .fontWeight(.medium)
+                        .foregroundStyle(.secondary)
+                    Text("Create your first order from the Orders tab.")
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                }
+                .frame(maxWidth: .infinity)
+                .padding(.vertical, 24)
+                .background(Color(uiColor: .secondarySystemGroupedBackground))
+                .clipShape(RoundedRectangle(cornerRadius: 16))
+            } else {
+                VStack(spacing: 0) {
+                    ForEach(recentOrders, id: \.objectID) { order in
+                        NavigationLink(destination: OrderDetailView(order: order)) {
+                            RecentOrderRow(order: order)
+                        }
+                        .buttonStyle(.plain)
+                        
+                        if order.objectID != recentOrders.last?.objectID {
+                            Divider()
+                                .padding(.leading, 56)
+                        }
+                    }
+                }
+                .padding(.horizontal, 16)
+                .background(Color(uiColor: .secondarySystemGroupedBackground))
+                .clipShape(RoundedRectangle(cornerRadius: 16))
+            }
+        }
+    }
+}
+
+private struct RecentOrderRow: View {
+    @ObservedObject var order: Order
+    
+    var body: some View {
+        HStack(spacing: 12) {
+            ZStack {
+                RoundedRectangle(cornerRadius: 8)
+                    .fill(typeColor.opacity(0.15))
+                
+                Image(systemName: order.orderType == "purchase" ? "arrow.down.circle.fill" : "arrow.up.circle.fill")
+                    .font(.title3)
+                    .foregroundStyle(typeColor)
+            }
+            .frame(width: 40, height: 40)
+            
+            VStack(alignment: .leading, spacing: 3) {
+                Text(order.orderNumber ?? "Order")
+                    .font(.subheadline)
+                    .fontWeight(.semibold)
+                    .foregroundStyle(.primary)
+                    .lineLimit(1)
+                
+                Text(order.orderDate?.formatted(date: .abbreviated, time: .omitted) ?? "N/A")
+                    .font(.caption2)
+                    .foregroundStyle(.gray)
+            }
+            
+            Spacer()
+            
+            VStack(alignment: .trailing, spacing: 3) {
+                Text(order.totalAmount.formatted(.currency(code: "INR")))
+                    .font(.subheadline)
+                    .fontWeight(.semibold)
+                    .foregroundStyle(.primary)
+                
+                Text(order.orderType?.capitalized ?? "Order")
+                    .font(.caption2)
+                    .fontWeight(.medium)
+                    .foregroundStyle(typeColor)
+            }
+        }
+        .padding(.vertical, 10)
+    }
+    
+    private var typeColor: Color {
+        order.orderType == "purchase" ? .green : .orange
+    }
+}
+
 struct RevenueCard: View {
-    let months = ["Apr", "May", "Jun", "Jul", "Aug"]
-    let heights: [CGFloat] = [25, 35, 30, 45, 60]
+    let revenue: [MonthlyRevenue]
+    let changePercent: Double
+    
+    private var maxAmount: Double {
+        revenue.map(\.amount).max() ?? 0
+    }
+    
+    private var totalRevenue: Double {
+        revenue.reduce(0) { $0 + $1.amount }
+    }
+    
+    private func barHeight(for amount: Double) -> CGFloat {
+        guard maxAmount > 0 else { return 4 }
+        return 8 + (CGFloat(amount) / CGFloat(maxAmount)) * 60
+    }
     
     var body: some View {
         VStack(alignment: .leading, spacing: 14) {
@@ -160,20 +311,20 @@ struct RevenueCard: View {
                 .fontWeight(.semibold)
                 .foregroundStyle(.gray)
             
-            Text("₹84,320")
+            Text(totalRevenue.formatted(.currency(code: "INR")))
                 .font(.system(size: 28, weight: .bold))
                 .foregroundStyle(.primary)
             
             HStack(alignment: .bottom, spacing: 12) {
-                ForEach(0..<5) { index in
+                ForEach(Array(revenue.enumerated()), id: \.offset) { index, item in
                     VStack(spacing: 8) {
                         Spacer()
                         
                         RoundedRectangle(cornerRadius: 4)
-                            .fill(index == 4 ? Color.blue : Color.blue.opacity(0.2))
-                            .frame(height: heights[index])
+                            .fill(index == revenue.count - 1 ? Color.blue : Color.blue.opacity(0.25))
+                            .frame(height: barHeight(for: item.amount))
                         
-                        Text(months[index])
+                        Text(item.month)
                             .font(.caption2)
                             .foregroundStyle(.gray)
                     }
@@ -191,10 +342,10 @@ struct RevenueCard: View {
                 
                 Spacer()
                 
-                Text("+18.4%")
+                Text(String(format: "%+.1f%%", changePercent))
                     .font(.caption)
                     .fontWeight(.bold)
-                    .foregroundStyle(.green)
+                    .foregroundStyle(changePercent >= 0 ? .green : .red)
             }
         }
         .padding(16)

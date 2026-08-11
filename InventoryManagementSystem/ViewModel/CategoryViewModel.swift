@@ -46,6 +46,12 @@ class CategoryViewModel: ObservableObject {
             return false
         }
         
+        guard cleanedName.count <= 30 else {
+            alertMessage = "Category name must be 30 characters or less."
+            showAlert = true
+            return false
+        }
+        
         if categories.contains(where: { $0.name?.lowercased() == cleanedName.lowercased() }) {
             alertMessage = "This name is already registered. Please use a different name."
             showAlert = true

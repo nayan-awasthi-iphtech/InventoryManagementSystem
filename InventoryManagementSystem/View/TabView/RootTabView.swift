@@ -15,7 +15,7 @@ struct RootTabView: View {
                 .tabItem {
                     Label("Dashboard", systemImage: "house.fill")
                 }
-
+            
             ProductListView()
                 .tabItem {
                     Label("Products", systemImage: "cube.box.fill")
@@ -23,6 +23,14 @@ struct RootTabView: View {
             CategoryListView()
                 .tabItem {
                     Label("Categories", systemImage: "rectangle.stack.badge.person.crop")
+                }
+            SupplierListView()
+                .tabItem{
+                    Label("Suppliers", systemImage: "person.crop.circle.fill")
+                }
+            OrderListView()
+                .tabItem {
+                    Label("Orders", systemImage: "cart.fill")
                 }
         }
         .tint(.blue)

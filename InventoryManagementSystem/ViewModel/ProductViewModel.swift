@@ -30,9 +30,11 @@ class ProductViewModel: ObservableObject {
     @Published var showAlert: Bool = false
     @Published var AlertMessage: String = ""
     
-    private let viewContext = PersistenceController.shared.container.viewContext
+    private var viewContext: NSManagedObjectContext
     
-    init(){
+    init(context: NSManagedObjectContext = PersistenceController.shared.container.viewContext){
+        
+        self.viewContext = context
         fetchProducts()
         fetchCategories()
         fetchSuppliers()
@@ -60,7 +62,8 @@ class ProductViewModel: ObservableObject {
         }
     }
     
-    func fetchProducts(){
+    func fetchProducts(context: NSManagedObjectContext? = nil) {
+        let targetContext = context ?? viewContext
         let fetchRequest: NSFetchRequest<Product> = Product.fetchRequest()
         fetchRequest.sortDescriptors = [NSSortDescriptor(keyPath: \Product.name, ascending: true)]
         
@@ -73,7 +76,7 @@ class ProductViewModel: ObservableObject {
         }
         
         do {
-            products = try viewContext.fetch(fetchRequest)
+            products = try targetContext.fetch(fetchRequest)
         } catch {
             print("Error in fetching products: \(error.localizedDescription)")
             AlertMessage = "Unable to fetch products. Please try again."
@@ -84,6 +87,24 @@ class ProductViewModel: ObservableObject {
         let trimmedName = productName.trimmingCharacters(in: .whitespacesAndNewlines)
         guard !trimmedName.isEmpty else {
             AlertMessage = "Please enter a name for the product."
+            showAlert = true
+            return false
+        }
+        
+        guard trimmedName.count <= 30 else {
+            AlertMessage = "Category name must be 30 characters or less."
+            showAlert = true
+            return false
+        }
+        
+        guard let category = selectedCategory else {
+            AlertMessage = "Please select a Category for the product."
+            showAlert = true
+            return false
+        }
+        
+        guard let supplier = selectedSupplier else {
+            AlertMessage = "Please select a Supplier for the product."
             showAlert = true
             return false
         }
@@ -102,13 +123,8 @@ class ProductViewModel: ObservableObject {
             newProduct.product_admin = currentAdmin
         }
         
-        if let category = selectedCategory {
-            newProduct.product_category = category
-        }
-        
-        if let supplier = selectedSupplier {
-            newProduct.product_Supplier = supplier
-        }
+        newProduct.product_category = category
+        newProduct.product_Supplier = supplier
         
         print("Product added successfully")
         

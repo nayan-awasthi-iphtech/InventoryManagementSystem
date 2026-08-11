@@ -116,6 +116,14 @@ struct AuthView: View {
                                     TextField("Enter your Contact Number", text: $authViewModel.contactNo)
                                         .keyboardType(.numberPad)
                                         .textInputAutocapitalization(.never)
+                                        .onChange(of: authViewModel.contactNo) {
+                                            let filtered = authViewModel.contactNo.filter { $0.isNumber }
+                                                if filtered.count > 10 {
+                                                    authViewModel.contactNo = String(filtered.prefix(10))
+                                                } else if authViewModel.contactNo != filtered {
+                                                    authViewModel.contactNo = filtered
+                                                }
+                                            }
                                 }
                                 .padding(.horizontal, 16)
                                 .frame(height: 50)

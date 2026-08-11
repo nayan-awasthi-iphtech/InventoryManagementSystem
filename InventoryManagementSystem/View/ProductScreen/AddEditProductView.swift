@@ -16,19 +16,45 @@ struct AddEditProductView: View {
     
     var productToEdit: Product?
     @State private var photoItem: PhotosPickerItem?
+
+    var hasCategoryAndSupplierData: Bool {
+        return !productViewModel.categories.isEmpty && !productViewModel.suppliers.isEmpty
+    }
+    
+    var hasSelectedCategoryAndSupplier: Bool {
+        return productViewModel.selectedCategory != nil && productViewModel.selectedSupplier != nil
+    }
     
     var body: some View {
-        NavigationStack{
+        NavigationStack {
             Form {
-                Section("Product Image"){
-                    HStack{
+                if !hasCategoryAndSupplierData && productToEdit == nil {
+                    Section {
+                        VStack(alignment: .leading, spacing: 6) {
+                            HStack {
+                                Image(systemName: "exclamationmark.triangle.fill")
+                                    .foregroundStyle(.orange)
+                                Text("Cannot Add Product")
+                                    .font(.headline)
+                            }
+                            
+                            Text("You must create at least one **Category** and one **Supplier** before adding a new product.")
+                                .font(.caption)
+                                .foregroundStyle(.secondary)
+                        }
+                        .padding(.vertical, 4)
+                    }
+                }
+                
+                Section("Product Image") {
+                    HStack {
                         Spacer()
-                        VStack(spacing:8){
-                            if let data = productViewModel.productImageData, let uiImage = UIImage(data: data){
+                        VStack(spacing: 8) {
+                            if let data = productViewModel.productImageData, let uiImage = UIImage(data: data) {
                                 Image(uiImage: uiImage)
                                     .resizable()
                                     .scaledToFill()
-                                    .frame(width:100, height: 100)
+                                    .frame(width: 100, height: 100)
                                     .clipShape(RoundedRectangle(cornerRadius: 12))
                             } else {
                                 Image(systemName: "photo.badge.plus")
@@ -39,8 +65,8 @@ struct AddEditProductView: View {
                                     .clipShape(RoundedRectangle(cornerRadius: 12))
                             }
                             
-                            PhotosPicker(selection: $photoItem, matching: .images){
-                                Text(productViewModel.productImageData == nil ? "Select Photo": "Change Photo")
+                            PhotosPicker(selection: $photoItem, matching: .images) {
+                                Text(productViewModel.productImageData == nil ? "Select Photo" : "Change Photo")
                                     .font(.caption)
                                     .fontWeight(.semibold)
                             }
@@ -49,33 +75,33 @@ struct AddEditProductView: View {
                     }
                 }
                 
-                Section("General Info"){
+                Section("General Info") {
                     TextField("Product Name", text: $productViewModel.productName)
                     TextField("SKU (E.g., PRD-001)", text: $productViewModel.productSKU)
                         .autocapitalization(.allCharacters)
                     TextField("Barcode String", text: $productViewModel.productBarcode)
                 }
                 
-                Section("Classification"){
-                    Picker("Category", selection: $productViewModel.selectedCategory){
-                        Text("None").tag(Category?.none)
+                Section("Classification") {
+                    Picker("Category", selection: $productViewModel.selectedCategory) {
+                        Text("None").tag(nil as Category?)
                         ForEach(productViewModel.categories, id: \.objectID) { category in
                             Text(category.name ?? "Unnamed Category")
-                                .tag(Optional(category))
+                                .tag(category as Category?)
                         }
                     }
                     
-                    Picker("Supplier", selection: $productViewModel.selectedSupplier){
-                        Text("None").tag(Supplier?.none)
+                    Picker("Supplier", selection: $productViewModel.selectedSupplier) {
+                        Text("None").tag(nil as Supplier?)
                         ForEach(productViewModel.suppliers, id: \.objectID) { supplier in
                             Text(supplier.name ?? "Unnamed Supplier")
-                                .tag(Optional(supplier))
+                                .tag(supplier as Supplier?)
                         }
                     }
                 }
                 
-                Section("Stock & Pricing"){
-                    HStack{
+                Section("Stock & Pricing") {
+                    HStack {
                         Text("Price ($)")
                         Spacer()
                         TextField("0.00", text: $productViewModel.productPrice)
@@ -91,44 +117,62 @@ struct AddEditProductView: View {
                     }
                 }
                 
-                Section("Details / Description"){
+                Section("Details / Description") {
                     TextField("Enter extra product details...", text: $productViewModel.productDetail)
                         .lineLimit(3...5)
                 }
             }
-            .navigationTitle(productToEdit == nil ? "Add Product": "Edit Product")
+            .navigationTitle(productToEdit == nil ? "Add Product" : "Edit Product")
             .navigationBarTitleDisplayMode(.inline)
-            .onChange(of: photoItem){
-                Task{
-                    if let data = try? await photoItem?.loadTransferable(type: Data.self){
+            .onChange(of: photoItem) {
+                Task {
+                    if let data = try? await photoItem?.loadTransferable(type: Data.self) {
                         productViewModel.productImageData = data
                     }
                 }
             }
-            .toolbar{
-                ToolbarItem(placement: .cancellationAction){
-                    Button("Cancel"){
+            .toolbar {
+                ToolbarItem(placement: .cancellationAction) {
+                    Button("Cancel") {
                         productViewModel.clearFields()
                         dismiss()
                     }
                 }
-                ToolbarItem(placement: .confirmationAction){
-                    Button("Save"){
+                
+                ToolbarItem(placement: .confirmationAction) {
+                    Button("Save") {
+                        if productToEdit == nil && !hasCategoryAndSupplierData {
+                            productViewModel.AlertMessage = "Please create at least one Category and one Supplier first."
+                            productViewModel.showAlert = true
+                            return
+                        }
+                        
+                        if productToEdit == nil && !hasSelectedCategoryAndSupplier {
+                            productViewModel.AlertMessage = "Please select both a Category and a Supplier for the product."
+                            productViewModel.showAlert = true
+                            return
+                        }
+                        
                         let success: Bool
                         if let product = productToEdit {
                             success = productViewModel.updateProduct(product)
                         } else {
                             success = productViewModel.Addproducts()
                         }
+                        
                         if success {
                             productViewModel.clearFields()
                             dismiss()
                         }
                     }
+                    .disabled(productToEdit == nil && !hasCategoryAndSupplierData)
                 }
             }
             .onAppear {
-                if let product = productToEdit{
+                productViewModel.fetchCategories()
+                productViewModel.fetchSuppliers()
+                
+                if let product = productToEdit {
                     productViewModel.populateFields(from: product)
                 } else {
                     productViewModel.clearFields()
@@ -145,4 +189,5 @@ struct AddEditProductView: View {
 
 #Preview {
     AddEditProductView()
+        .environmentObject(ProductViewModel())
 }
