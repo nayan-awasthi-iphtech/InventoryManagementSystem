@@ -15,6 +15,11 @@ struct ProductDetailPage: View {
     @State private var showDeleteAlert: Bool = false
     @StateObject private var viewModel = ProductViewModel()
     
+    private var shortProductID: String {
+        guard let id = product.id else { return "N/A" }
+        return String(id.uuidString.prefix(8)).uppercased()
+    }
+    
     var body: some View {
         ZStack{
             
@@ -88,10 +93,10 @@ struct ProductDetailPage: View {
                 .clipShape(RoundedRectangle(cornerRadius: 20))
                 
                 LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible())], spacing: 10){
+                    InfoTile(title: "Product ID", value: shortProductID, icon: "number")
                     InfoTile(title: "SKU", value: product.sku ?? "N/A", icon: "barcode")
                     InfoTile(title: "Barcode", value: product.barcode ?? "N/A", icon: "qrcode")
                     InfoTile(title: "Category", value: product.product_category?.name ?? "", icon: "folder")
-                    InfoTile(title: "Supplier", value: product.product_Supplier?.name ?? "", icon: "building.2")
                 }
                 
                 
@@ -184,7 +189,7 @@ struct ProductDetailPage: View {
                         .foregroundStyle(.blue)
                 }
                 
-                Button(role: .destructive) {
+                Button{
                     showDeleteAlert = true
                 } label: {
                     Image(systemName: "trash")
@@ -196,13 +201,11 @@ struct ProductDetailPage: View {
             AddEditProductView(productToEdit: product)
                 .environmentObject(viewModel)
         }
-        .confirmationDialog("Product Delete" , isPresented: $showDeleteAlert){
+        .alert("Product Delete" , isPresented: $showDeleteAlert){
             Button("Delete", role: .destructive){
                 viewModel.deleteProduct(product)
             }
-            Button("Cancel") {
-                
-            }
+            Button("Cancel", role: .cancel) { }
         } message: {
             Text("Are you sure you want to delete '\(product.name ?? "this product")'? This action cannot be undone.")
         }

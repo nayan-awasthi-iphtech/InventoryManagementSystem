@@ -55,7 +55,7 @@ struct OrderDetailView: View {
                 }
             }
         }
-        .confirmationDialog("Delete Order", isPresented: $showDeleteAlert) {
+        .alert("Delete Order", isPresented: $showDeleteAlert) {
             Button("Delete", role: .destructive) {
                 if orderViewModel.deleteOrder(order) {
                     dismiss()

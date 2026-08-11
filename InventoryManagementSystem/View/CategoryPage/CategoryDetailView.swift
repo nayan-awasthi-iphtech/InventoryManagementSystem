@@ -75,7 +75,7 @@ struct CategoryDetailView: View {
             AddEditCategoryView(categoryToEdit: category)
                 .environmentObject(viewModel)
         }
-        .confirmationDialog("Delete Category", isPresented: $showDeleteAlert) {
+        .alert("Delete Category", isPresented: $showDeleteAlert) {
             Button("Delete", role: .destructive) {
                 if viewModel.deleteCategory(category) {
                     dismiss()

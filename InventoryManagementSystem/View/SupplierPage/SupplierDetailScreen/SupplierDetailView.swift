@@ -82,7 +82,7 @@ struct SupplierDetailView: View {
             AddEditSupplier(supplierToEdit: supplier)
                 .environmentObject(supplierViewModel)
         }
-        .confirmationDialog("Delete Supplier", isPresented: $showDeleteAlert) {
+        .alert("Delete Supplier", isPresented: $showDeleteAlert) {
             Button("Delete", role: .destructive) {
                 if supplierViewModel.deleteSupplier(supplier) {
                     dismiss()
