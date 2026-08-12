@@ -115,8 +115,15 @@ class DashboardViewModel: ObservableObject {
         return orders.filter { calendar.isDateInToday($0.orderDate ?? Date()) }.count
     }
     
-    private var saleOrders: [Order] {
-        orders.filter { $0.orderType == "sale" }
+    private var revenueOrders: [Order] {
+        orders.filter { order in
+            
+            let orderType = order.orderType?.lowercased()
+            let status = order.status?.lowercased()
+            
+            return orderType == "sale" &&
+            status == "delivered"
+        }
     }
     
     var monthlyRevenue: [MonthlyRevenue] {
@@ -126,7 +133,7 @@ class DashboardViewModel: ObservableObject {
         
         guard let firstOfThisMonth = calendar.date(bySetting: .day, value: 1, of: Date()) else { return [] }
         
-        let saleOrders = self.saleOrders
+        let saleOrders = self.revenueOrders
         return (0..<6).reversed().compactMap { offset in
             guard let start = calendar.date(byAdding: .month, value: -offset, to: firstOfThisMonth),
                   let end = calendar.date(byAdding: .month, value: 1, to: start) else { return nil }

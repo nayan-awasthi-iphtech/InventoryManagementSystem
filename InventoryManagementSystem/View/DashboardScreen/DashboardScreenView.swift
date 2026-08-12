@@ -323,7 +323,7 @@ struct RevenueCard: View {
     private var maxAmount: Double {
         revenue.map(\.amount).max() ?? 0
     }
-    
+ 
     private var totalRevenue: Double {
         revenue.reduce(0) { $0 + $1.amount }
     }
