@@ -31,18 +31,33 @@ class OrderViewModel: ObservableObject {
     @Published var orderStatus: String = "Pending"
     @Published var filterType: String = "all"
     @Published var selectedSupplier: Supplier?
+    @Published var selectedProduct: Product?
+    @Published var selectedQuantity: Int = 1
     @Published var selectedItems: [OrderItemDraft] = []
     
     @Published var showAlert: Bool = false
     @Published var alertMessage: String = ""
     
     private let viewContext: NSManagedObjectContext
+    private var contextObserver: AnyCancellable?
     
     init(context: NSManagedObjectContext = PersistenceController.shared.container.viewContext) {
         self.viewContext = context
         fetchOrders()
         fetchProducts()
         fetchSuppliers()
+        observeContextChanges()
+    }
+    
+    private func observeContextChanges() {
+        contextObserver = NotificationCenter.default
+            .publisher(for: .NSManagedObjectContextDidSave, object: viewContext)
+            .receive(on: RunLoop.main)
+            .sink { [weak self] _ in
+                self?.fetchOrders()
+                self?.fetchProducts()
+                self?.fetchSuppliers()
+            }
     }
     
     func fetchOrders() {
@@ -102,12 +117,34 @@ class OrderViewModel: ObservableObject {
     }
     
     func addItem(product: Product?, quantity: Int32) {
+        guard let product = product, quantity > 0 else {
+            return
+        }
+
+        if let index = selectedItems.firstIndex(
+            where: { $0.product.objectID == product.objectID }
+        ) {
+            selectedItems[index].quantity += quantity
+        } else {
+            let newItem = OrderItemDraft(
+                product: product,
+                quantity: quantity
+            )
+            selectedItems.append(newItem)
+        }
+    }
+    
+    func removeItem(product: Product?, quantity: Int32) {
         guard let product = product, quantity > 0 else { return }
         
         if let index = selectedItems.firstIndex(where: { $0.product.objectID == product.objectID }) {
-            selectedItems[index].quantity += quantity
-        } else {
-            selectedItems.append(OrderItemDraft(product: product, quantity: quantity))
+            var items = selectedItems
+            items[index].quantity -= quantity
+            
+            if items[index].quantity <= 0 {
+                items.remove(at: index)
+            }
+            selectedItems = items
         }
     }
     
@@ -119,6 +156,8 @@ class OrderViewModel: ObservableObject {
         orderType = "purchase"
         orderStatus = "Pending"
         selectedSupplier = nil
+        selectedProduct = nil
+        selectedQuantity = 1
         selectedItems = []
     }
     
@@ -163,11 +202,14 @@ class OrderViewModel: ObservableObject {
             orderItem.unitprice = item.product.price
             orderItem.orderItem_order = newOrder
             orderItem.orderItem_product = item.product
-            
-            let delta = isPurchase ? item.quantity : -item.quantity
-            let previousQuantity = item.product.quantity
-            item.product.quantity = previousQuantity + delta
-            createStockLog(for: item.product, previousQuantity: previousQuantity, newQuantity: item.product.quantity, changed: delta)
+        }
+        
+        if orderStatus == "Delivered" {
+            guard applyStockChanges(for: newOrder) else {
+                alertMessage = "Cannot create order: insufficient stock for one or more items."
+                showAlert = true
+                return false
+            }
         }
         
         return saveContext()
@@ -184,6 +226,19 @@ class OrderViewModel: ObservableObject {
     }
     
     func updateStatus(_ order: Order, to status: String) -> Bool {
+        let current = (order.status ?? "").lowercased()
+        let target = status.lowercased()
+        
+        guard target != current else { return true }
+        
+        if target == "delivered" {
+            guard applyStockChanges(for: order) else {
+                alertMessage = "Cannot mark this order as delivered: insufficient stock for one or more items."
+                showAlert = true
+                return false
+            }
+        }
+        
         order.status = status
         return saveContext()
     }
@@ -194,13 +249,37 @@ class OrderViewModel: ObservableObject {
         return "ORD-\(formatter.string(from: Date()))"
     }
     
-    private func createStockLog(for product: Product, previousQuantity: Int32, newQuantity: Int32, changed: Int32) {
+    private func applyStockChanges(for order: Order) -> Bool {
+        guard let items = order.order_orderItem as? Set<OrderItem> else { return false }
+        
+        let isPurchase = order.orderType == "purchase"
+        let transactionType = order.orderType ?? ""
+        
+        for item in items {
+            guard let product = item.orderItem_product else { continue }
+            let qty = item.quantity
+            
+            if !isPurchase && product.quantity < qty {
+                return false
+            }
+            
+            let delta = isPurchase ? qty : -qty
+            let previousQuantity = product.quantity
+            product.quantity = previousQuantity + delta
+            createStockLog(for: product, previousQuantity: previousQuantity, newQuantity: product.quantity, changed: delta, transactionType: transactionType)
+        }
+        
+        return true
+    }
+    
+    private func createStockLog(for product: Product, previousQuantity: Int32, newQuantity: Int32, changed: Int32, transactionType: String) {
         let log = StockLog(context: viewContext)
         log.id = UUID()
         log.previousQuantity = previousQuantity
         log.newQuantity = newQuantity
         log.quantityChanged = changed
-        log.transactionType = orderType
+        log.transactionType = transactionType
+        log.date = Date()
         log.stockLog_product = product
         log.stockLog_admin = SessionManager.shared.currentAdmin
     }

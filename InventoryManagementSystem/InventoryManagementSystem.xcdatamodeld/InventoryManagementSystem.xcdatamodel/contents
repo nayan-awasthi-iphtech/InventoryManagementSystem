@@ -80,6 +80,7 @@
         </uniquenessConstraints>
     </entity>
     <entity name="StockLog" representedClassName="StockLog" syncable="YES" codeGenerationType="class">
+        <attribute name="date" optional="YES" attributeType="Date" usesScalarValueType="NO"/>
         <attribute name="id" optional="YES" attributeType="UUID" usesScalarValueType="NO"/>
         <attribute name="newQuantity" optional="YES" attributeType="Integer 32" defaultValueString="0" usesScalarValueType="YES"/>
         <attribute name="previousQuantity" optional="YES" attributeType="Integer 32" defaultValueString="0" usesScalarValueType="YES"/>
@@ -96,6 +97,7 @@
     <entity name="Supplier" representedClassName="Supplier" syncable="YES" codeGenerationType="class">
         <attribute name="address" optional="YES" attributeType="String"/>
         <attribute name="contact" optional="YES" attributeType="String"/>
+        <attribute name="companyName" optional="YES" attributeType="String"/>
         <attribute name="gstNumber" optional="YES" attributeType="String"/>
         <attribute name="id" optional="YES" attributeType="UUID" usesScalarValueType="NO"/>
         <attribute name="imageData" optional="YES" attributeType="Binary"/>

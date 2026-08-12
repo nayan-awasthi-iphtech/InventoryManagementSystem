@@ -148,6 +148,12 @@ struct OrderDetailView: View {
                         .font(.subheadline)
                         .fontWeight(.bold)
                         .foregroundStyle(.secondary)
+                    
+                    if isDelivered {
+                        Image(systemName: "lock.fill")
+                            .font(.caption2)
+                            .foregroundStyle(.secondary)
+                    }
                 }
                 
                 Spacer()
@@ -159,6 +165,7 @@ struct OrderDetailView: View {
                 }
                 .pickerStyle(.menu)
                 .tint(statusColor)
+                .disabled(isDelivered)
             }
         }
         .padding()
@@ -265,12 +272,16 @@ struct OrderDetailView: View {
         }
     }
     
+    private var isDelivered: Bool {
+        (order.status ?? "").lowercased() == "delivered"
+    }
+    
     private var statusBinding: Binding<String> {
         Binding(
             get: { order.status ?? "Pending" },
             set: { newValue in
+                guard !isDelivered else { return }
                 if newValue != order.status {
-                    order.status = newValue
                     _ = orderViewModel.updateStatus(order, to: newValue)
                 }
             }

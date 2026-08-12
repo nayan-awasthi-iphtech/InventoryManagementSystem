@@ -10,6 +10,7 @@ import CoreData
 
 struct ProductDetailPage: View {
     
+    @Environment(\.dismiss) var dismiss
     @ObservedObject var product: Product
     @State private var showEditSheet: Bool = false
     @State private var showDeleteAlert: Bool = false
@@ -204,6 +205,8 @@ struct ProductDetailPage: View {
         .alert("Product Delete" , isPresented: $showDeleteAlert){
             Button("Delete", role: .destructive){
                 viewModel.deleteProduct(product)
+                dismiss()
+                
             }
             Button("Cancel", role: .cancel) { }
         } message: {

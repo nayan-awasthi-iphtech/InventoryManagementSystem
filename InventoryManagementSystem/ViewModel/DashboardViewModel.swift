@@ -23,9 +23,20 @@ class DashboardViewModel: ObservableObject {
     @Published var orders: [Order] = []
     
     private let viewContext = PersistenceController.shared.container.viewContext
+    private var contextObserver: AnyCancellable?
     
     init(){
         fetchAllData()
+        observeContextChanges()
+    }
+    
+    private func observeContextChanges() {
+        contextObserver = NotificationCenter.default
+            .publisher(for: .NSManagedObjectContextDidSave, object: viewContext)
+            .receive(on: RunLoop.main)
+            .sink { [weak self] _ in
+                self?.fetchAllData()
+            }
     }
     
     func fetchAllData(){

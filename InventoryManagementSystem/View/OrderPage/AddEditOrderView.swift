@@ -13,9 +13,6 @@ struct AddEditOrderView: View {
     @Environment(\.dismiss) private var dismiss
     @EnvironmentObject var orderViewModel: OrderViewModel
     
-    @State private var selectedProduct: Product?
-    @State private var selectedQuantity: Int = 1
-    
     var body: some View {
         NavigationStack {
             Form {
@@ -49,7 +46,7 @@ struct AddEditOrderView: View {
                 }
                 
                 Section("Add Items") {
-                    Picker("Product", selection: $selectedProduct) {
+                    Picker("Product", selection: $orderViewModel.selectedProduct) {
                         Text("Select a product").tag(nil as Product?)
                         ForEach(orderViewModel.products, id: \.objectID) { product in
                             Text(product.name ?? "Unnamed Product")
@@ -57,21 +54,70 @@ struct AddEditOrderView: View {
                         }
                     }
                     
-                    Stepper(value: $selectedQuantity, in: 1...999) {
+                    Stepper(value: $orderViewModel.selectedQuantity, in: 1...999) {
                         HStack {
                             Text("Quantity")
                             Spacer()
-                            Text("\(selectedQuantity)")
+                            Text("\(orderViewModel.selectedQuantity)")
                                 .fontWeight(.semibold)
                         }
                     }
                     
-                    Button {
-                        orderViewModel.addItem(product: selectedProduct, quantity: Int32(selectedQuantity))
-                    } label: {
-                        Label("Add Item", systemImage: "plus.circle.fill")
+                    HStack(spacing: 12) {
+
+                        Button {
+                            orderViewModel.removeItem(
+                                product: orderViewModel.selectedProduct,
+                                quantity: Int32(orderViewModel.selectedQuantity)
+                            )
+                        } label: {
+                            HStack(spacing: 6) {
+                                Image(systemName: "minus.circle.fill")
+                                    .font(.system(size: 16, weight: .semibold))
+
+                                Text("Remove")
+                                    .font(.system(size: 13, weight: .semibold))
+                            }
+                            .foregroundStyle(.red)
+                            .frame(maxWidth: .infinity)
+                            .frame(height: 40)
+                            .background(
+                                RoundedRectangle(cornerRadius: 10)
+                                    .fill(Color.red.opacity(0.10))
+                            )
+                            .contentShape(Rectangle())
+                        }
+                        .buttonStyle(.plain)
+                        .disabled(orderViewModel.selectedProduct == nil)
+                        .opacity(orderViewModel.selectedProduct == nil ? 0.5 : 1)
+
+
+                        Button {
+                            orderViewModel.addItem(
+                                product: orderViewModel.selectedProduct,
+                                quantity: Int32(orderViewModel.selectedQuantity)
+                            )
+                        } label: {
+                            HStack(spacing: 6) {
+                                Image(systemName: "plus.circle.fill")
+                                    .font(.system(size: 16, weight: .semibold))
+
+                                Text("Add")
+                                    .font(.system(size: 13, weight: .semibold))
+                            }
+                            .foregroundStyle(.white)
+                            .frame(maxWidth: .infinity)
+                            .frame(height: 40)
+                            .background(
+                                RoundedRectangle(cornerRadius: 10)
+                                    .fill(Color.blue)
+                            )
+                            .contentShape(Rectangle())
+                        }
+                        .buttonStyle(.plain)
+                        .disabled(orderViewModel.selectedProduct == nil)
+                        .opacity(orderViewModel.selectedProduct == nil ? 0.5 : 1)
                     }
-                    .disabled(selectedProduct == nil)
                 }
                 
                 if !orderViewModel.selectedItems.isEmpty {
@@ -132,11 +178,6 @@ struct AddEditOrderView: View {
                     }
                     .disabled(orderViewModel.selectedItems.isEmpty)
                 }
-            }
-            .onAppear {
-                orderViewModel.fetchProducts()
-                orderViewModel.fetchSuppliers()
-                orderViewModel.clearFields()
             }
             .alert("Error", isPresented: $orderViewModel.showAlert) {
                 Button("OK", role: .cancel) {}

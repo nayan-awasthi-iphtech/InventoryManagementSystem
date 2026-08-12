@@ -10,10 +10,18 @@ import CoreData
 
 struct OrderListView: View {
     
-    @StateObject var orderViewModel = OrderViewModel()
+    @StateObject private var orderViewModel = OrderViewModel()
+    @State private var selectedSection: OrdersSection = .orders
     @State private var showAddSheet: Bool = false
     @State private var orderToDelete: Order?
     @State private var showDeleteAlert: Bool = false
+    
+    enum OrdersSection: String, CaseIterable, Identifiable {
+        case orders = "Orders"
+        case reports = "Reports"
+        
+        var id: String { rawValue }
+    }
     
     var body: some View {
         NavigationStack {
@@ -31,6 +39,7 @@ struct OrderListView: View {
                         HStack {
                             Spacer()
                             Button {
+                                orderViewModel.clearFields()
                                 showAddSheet = true
                             } label: {
                                 Image(systemName: "plus")
@@ -45,39 +54,54 @@ struct OrderListView: View {
                     }
                     .padding(.top, 8)
                     
-                    Picker("Filter", selection: $orderViewModel.filterType) {
-                        Text("All").tag("all")
-                        Text("Purchase").tag("purchase")
-                        Text("Sale").tag("sale")
+                    Picker("Section", selection: $selectedSection) {
+                        ForEach(OrdersSection.allCases) { section in
+                            Text(section.rawValue).tag(section)
+                        }
                     }
                     .pickerStyle(.segmented)
                     .padding(.horizontal, 16)
                     .padding(.top, 15)
                     
                     Group {
-                        if orderViewModel.filteredOrders.isEmpty {
-                            ContentUnavailableView(
-                                emptyTitle,
-                                systemImage: emptySystemImage,
-                                description: Text(emptyDescription)
-                            )
+                        if selectedSection == .reports {
+                            ReportsContent()
                         } else {
-                            List {
-                                ForEach(orderViewModel.filteredOrders, id: \.objectID) { order in
-                                    NavigationLink(destination: OrderDetailView(order: order).environmentObject(orderViewModel)) {
-                                        OrderRow(order: order)
-                                    }
-                                    .swipeActions(edge: .trailing, allowsFullSwipe: false) {
-                                        Button(role: .destructive) {
-                                            orderToDelete = order
-                                            showDeleteAlert = true
-                                        } label: {
-                                            Label("Delete", systemImage: "trash")
+                            VStack(spacing: 0) {
+                                Picker("Filter", selection: $orderViewModel.filterType) {
+                                    Text("All").tag("all")
+                                    Text("Purchase").tag("purchase")
+                                    Text("Sale").tag("sale")
+                                }
+                                .pickerStyle(.segmented)
+                                .padding(.horizontal, 16)
+                                .padding(.top, 15)
+                                
+                                if orderViewModel.filteredOrders.isEmpty {
+                                    ContentUnavailableView(
+                                        emptyTitle,
+                                        systemImage: emptySystemImage,
+                                        description: Text(emptyDescription)
+                                    )
+                                } else {
+                                    List {
+                                        ForEach(orderViewModel.filteredOrders, id: \.objectID) { order in
+                                            NavigationLink(destination: OrderDetailView(order: order).environmentObject(orderViewModel)) {
+                                                OrderRow(order: order)
+                                            }
+                                            .swipeActions(edge: .trailing, allowsFullSwipe: false) {
+                                                Button(role: .destructive) {
+                                                    orderToDelete = order
+                                                    showDeleteAlert = true
+                                                } label: {
+                                                    Label("Delete", systemImage: "trash")
+                                                }
+                                            }
                                         }
                                     }
+                                    .scrollContentBackground(.hidden)
                                 }
                             }
-                            .scrollContentBackground(.hidden)
                         }
                     }
                 }

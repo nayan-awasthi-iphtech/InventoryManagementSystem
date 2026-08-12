@@ -31,6 +31,7 @@ class ProductViewModel: ObservableObject {
     @Published var AlertMessage: String = ""
     
     private var viewContext: NSManagedObjectContext
+    private var contextObserver: AnyCancellable?
     
     init(context: NSManagedObjectContext = PersistenceController.shared.container.viewContext){
         
@@ -38,6 +39,18 @@ class ProductViewModel: ObservableObject {
         fetchProducts()
         fetchCategories()
         fetchSuppliers()
+        observeContextChanges()
+    }
+    
+    private func observeContextChanges() {
+        contextObserver = NotificationCenter.default
+            .publisher(for: .NSManagedObjectContextDidSave, object: viewContext)
+            .receive(on: RunLoop.main)
+            .sink { [weak self] _ in
+                self?.fetchProducts()
+                self?.fetchCategories()
+                self?.fetchSuppliers()
+            }
     }
     
     func fetchCategories(){
@@ -126,12 +139,10 @@ class ProductViewModel: ObservableObject {
         newProduct.product_category = category
         newProduct.product_Supplier = supplier
         
-        print("Product added successfully")
-        
         return saveContext()
     }
     
-    func updateProduct(_ product: Product) -> Bool{
+    func updateProduct(_ product: Product) -> Bool {
         let trimmedName = productName.trimmingCharacters(in: .whitespacesAndNewlines)
         guard !trimmedName.isEmpty else {
             AlertMessage = "Please enter a name for the product."

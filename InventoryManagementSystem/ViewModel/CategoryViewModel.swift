@@ -21,10 +21,21 @@ class CategoryViewModel: ObservableObject {
     @Published var SelectedProduct: Product?
     
     private let viewContext: NSManagedObjectContext
+    private var contextObserver: AnyCancellable?
     
     init(context:NSManagedObjectContext = PersistenceController.shared.container.viewContext){
         self.viewContext = context
         fetchCategories()
+        observeContextChanges()
+    }
+    
+    private func observeContextChanges() {
+        contextObserver = NotificationCenter.default
+            .publisher(for: .NSManagedObjectContextDidSave, object: viewContext)
+            .receive(on: RunLoop.main)
+            .sink { [weak self] _ in
+                self?.fetchCategories()
+            }
     }
     
     func fetchCategories(){

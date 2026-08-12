@@ -169,6 +169,7 @@ struct AddEditProductView: View {
                 }
             }
             .onAppear {
+                
                 productViewModel.fetchCategories()
                 productViewModel.fetchSuppliers()
                 

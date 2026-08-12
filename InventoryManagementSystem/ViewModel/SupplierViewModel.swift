@@ -27,10 +27,21 @@ class SupplierViewModel: ObservableObject {
     @Published var alertMsg: String = ""
     
     private let viewContext: NSManagedObjectContext
+    private var contextObserver: AnyCancellable?
     
     init(context: NSManagedObjectContext = PersistenceController.shared.container.viewContext){
         self.viewContext = context
         fetchSuppliers()
+        observeContextChanges()
+    }
+    
+    private func observeContextChanges() {
+        contextObserver = NotificationCenter.default
+            .publisher(for: .NSManagedObjectContextDidSave, object: viewContext)
+            .receive(on: RunLoop.main)
+            .sink { [weak self] _ in
+                self?.fetchSuppliers()
+            }
     }
     
     func fetchSuppliers(){

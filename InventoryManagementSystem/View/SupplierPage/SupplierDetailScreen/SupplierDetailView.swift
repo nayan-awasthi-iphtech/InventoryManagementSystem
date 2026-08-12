@@ -161,6 +161,11 @@ struct SupplierDetailView: View {
             Divider()
             
             infoRow(
+                icon: "briefcase.fill",
+                label: "Company",
+                value: supplier.companyName?.isEmpty == false ? supplier.companyName! : "N/A"
+            )
+            infoRow(
                 icon: "building.2",
                 label: "GST Number",
                 value: supplier.gstNumber?.isEmpty == false ? supplier.gstNumber! : "N/A"

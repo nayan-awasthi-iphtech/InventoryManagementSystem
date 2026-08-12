@@ -14,6 +14,7 @@ struct DashboardScreenView: View {
     @StateObject private var authViewModel = AuthViewModel()
     @StateObject private var session = SessionManager.shared
     @StateObject private var dashboardViewModel = DashboardViewModel()
+    @StateObject private var stockViewModel = StockViewModel()
     
     var body: some View {
         NavigationStack {
@@ -106,7 +107,7 @@ struct DashboardScreenView: View {
                             MetricCard(
                                 iconName: "square.fill",
                                 iconColor: .teal,
-                                mainValue: String(format: "₹%.0f", dashboardViewModel.totalStockValue),
+                                mainValue: INRCompactFormatter.string(from: dashboardViewModel.totalStockValue),
                                 label: "Inventory Value",
                                 subtext: "Value of total stock",
                                 subtextColor: .gray
@@ -134,6 +135,9 @@ struct DashboardScreenView: View {
                         RevenueCard(revenue: dashboardViewModel.monthlyRevenue, changePercent: dashboardViewModel.revenueChangePercent)
                         
                         RecentOrdersSection(orders: dashboardViewModel.orders)
+                        
+                        StockManagementSection()
+                            .environmentObject(stockViewModel)
                     }
                     .padding(.horizontal, 16)
                     .padding(.bottom, 20)
@@ -154,33 +158,58 @@ struct MetricCard: View {
     let label: String
     let subtext: String
     let subtextColor: Color
-    
+
     var body: some View {
-        VStack(alignment: .leading, spacing: 8) {
+        HStack(spacing: 12) {
+
             Image(systemName: iconName)
-                .font(.system(size: 10))
+                .font(.system(size: 15, weight: .semibold))
                 .foregroundStyle(iconColor)
-                .padding(6)
-                .background(iconColor.opacity(0.15))
-                .clipShape(RoundedRectangle(cornerRadius: 4))
-            
-            Text(mainValue)
-                .font(.system(size: 24, weight: .bold))
-                .foregroundStyle(.primary)
-            
-            Text(label)
-                .font(.caption)
-                .fontWeight(.medium)
-                .foregroundStyle(.gray)
-            
-            Text(subtext)
-                .font(.caption2)
-                .foregroundStyle(subtextColor)
+                .frame(width: 34, height: 34)
+                .background(
+                    iconColor.opacity(0.12)
+                )
+                .clipShape(
+                    RoundedRectangle(cornerRadius: 9)
+                )
+
+            VStack(alignment: .leading, spacing: 2) {
+
+                Text(label)
+                    .font(.system(size: 12, weight: .medium))
+                    .foregroundStyle(.secondary)
+                    .lineLimit(1)
+
+                Text(mainValue)
+                    .font(.system(size: 21, weight: .bold))
+                    .foregroundStyle(.primary)
+                    .lineLimit(1)
+
+                Text(subtext)
+                    .font(.system(size: 10, weight: .medium))
+                    .foregroundStyle(subtextColor)
+                    .lineLimit(1)
+            }
+
+            Spacer(minLength: 0)
         }
-        .frame(maxWidth: .infinity, alignment: .leading)
-        .padding(14)
-        .background(Color(uiColor: .secondarySystemGroupedBackground))
-        .clipShape(RoundedRectangle(cornerRadius: 16))
+        .padding(.horizontal, 12)
+        .padding(.vertical, 10)
+        .frame(maxWidth: .infinity)
+        .frame(height: 78)
+        .background(
+            RoundedRectangle(cornerRadius: 14)
+                .fill(
+                    Color(uiColor: .secondarySystemGroupedBackground)
+                )
+        )
+        .overlay(
+            RoundedRectangle(cornerRadius: 14)
+                .stroke(
+                    Color.primary.opacity(0.06),
+                    lineWidth: 1
+                )
+        )
     }
 }
 
