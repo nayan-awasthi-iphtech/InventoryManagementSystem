@@ -20,6 +20,7 @@ class DashboardViewModel: ObservableObject {
     @Published var products: [Product] = []
     @Published var suppliers: [Supplier] = []
     @Published var categories: [Category] = []
+    @Published var distributors: [Distributor] = []
     @Published var orders: [Order] = []
     
     private let viewContext = PersistenceController.shared.container.viewContext
@@ -43,6 +44,7 @@ class DashboardViewModel: ObservableObject {
         fetchProducts()
         fetchSuppliers()
         fetchCategories()
+        fetchDistributors()
         fetchOrders()
     }
     
@@ -76,6 +78,17 @@ class DashboardViewModel: ObservableObject {
             categories = try viewContext.fetch(request)
         } catch {
             print("Error in fetching categories: \(error.localizedDescription)")
+        }
+    }
+    
+    func fetchDistributors(){
+        let request: NSFetchRequest<Distributor> = Distributor.fetchRequest()
+        request.sortDescriptors = [NSSortDescriptor(keyPath: \Distributor.name, ascending: true)]
+        
+        do {
+            distributors = try viewContext.fetch(request)
+        } catch {
+            print("Error in fetching distributors: \(error.localizedDescription)")
         }
     }
     

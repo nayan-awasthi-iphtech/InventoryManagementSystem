@@ -34,6 +34,16 @@ struct AddEditOrderView: View {
                             }
                         }
                     }
+                } else {
+                    Section("Distributor") {
+                        Picker("Distributor", selection: $orderViewModel.selectedDistributor) {
+                            Text("Select a distributor").tag(nil as Distributor?)
+                            ForEach(orderViewModel.distributors, id: \.objectID) { distributor in
+                                Text(distributor.name ?? "Unnamed Distributor")
+                                    .tag(distributor as Distributor?)
+                            }
+                        }
+                    }
                 }
                 
                 Section("Order Status") {

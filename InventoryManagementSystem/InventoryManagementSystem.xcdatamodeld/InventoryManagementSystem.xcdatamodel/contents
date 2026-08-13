@@ -9,6 +9,7 @@
         <attribute name="password" optional="YES" attributeType="String"/>
         <attribute name="timestamp" optional="YES" attributeType="Date" usesScalarValueType="NO"/>
         <relationship name="admin_category" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="Category" inverseName="category_admin" inverseEntity="Category"/>
+        <relationship name="admin_distributor" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="Distributor" inverseName="distributor_admin" inverseEntity="Distributor"/>
         <relationship name="admin_order" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="Order" inverseName="order_admin" inverseEntity="Order"/>
         <relationship name="admin_product" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="Product" inverseName="product_admin" inverseEntity="Product"/>
         <relationship name="admin_stockLog" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="StockLog" inverseName="stockLog_admin" inverseEntity="StockLog"/>
@@ -23,6 +24,7 @@
         <attribute name="id" optional="YES" attributeType="UUID" usesScalarValueType="NO"/>
         <attribute name="name" optional="YES" attributeType="String"/>
         <relationship name="category_admin" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="Admin" inverseName="admin_category" inverseEntity="Admin"/>
+        <relationship name="category_distributor" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="Distributor" inverseName="distributor_category" inverseEntity="Distributor"/>
         <relationship name="category_product" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="Product" inverseName="product_category" inverseEntity="Product"/>
         <relationship name="category_supplier" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="Supplier" inverseName="supplier_category" inverseEntity="Supplier"/>
         <uniquenessConstraints>
@@ -30,6 +32,18 @@
                 <constraint value="id"/>
             </uniquenessConstraint>
         </uniquenessConstraints>
+    </entity>
+    <entity name="Distributor" representedClassName="Distributor" syncable="YES" codeGenerationType="class">
+        <attribute name="address" optional="YES" attributeType="String"/>
+        <attribute name="contact" optional="YES" attributeType="String"/>
+        <attribute name="gstNumber" optional="YES" attributeType="String"/>
+        <attribute name="id" optional="YES" attributeType="UUID" usesScalarValueType="NO"/>
+        <attribute name="imageData" optional="YES" attributeType="Binary"/>
+        <attribute name="name" optional="YES" attributeType="String"/>
+        <relationship name="distributor_admin" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="Admin" inverseName="admin_distributor" inverseEntity="Admin"/>
+        <relationship name="distributor_category" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="Category" inverseName="category_distributor" inverseEntity="Category"/>
+        <relationship name="distributor_order" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="Order" inverseName="order_distributor" inverseEntity="Order"/>
+        <relationship name="distributor_product" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="Product" inverseName="product_distributor" inverseEntity="Product"/>
     </entity>
     <entity name="Order" representedClassName="Order" syncable="YES" codeGenerationType="class">
         <attribute name="id" optional="YES" attributeType="UUID" usesScalarValueType="NO"/>
@@ -39,6 +53,7 @@
         <attribute name="status" optional="YES" attributeType="String"/>
         <attribute name="totalAmount" optional="YES" attributeType="Double" defaultValueString="0.0" usesScalarValueType="YES"/>
         <relationship name="order_admin" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="Admin" inverseName="admin_order" inverseEntity="Admin"/>
+        <relationship name="order_distributor" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="Distributor" inverseName="distributor_order" inverseEntity="Distributor"/>
         <relationship name="order_orderItem" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="OrderItem" inverseName="orderItem_order" inverseEntity="OrderItem"/>
         <relationship name="order_supplier" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="Supplier" inverseName="supplier_order" inverseEntity="Supplier"/>
         <uniquenessConstraints>
@@ -70,6 +85,7 @@
         <attribute name="sku" optional="YES" attributeType="String"/>
         <relationship name="product_admin" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="Admin" inverseName="admin_product" inverseEntity="Admin"/>
         <relationship name="product_category" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="Category" inverseName="category_product" inverseEntity="Category"/>
+        <relationship name="product_distributor" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="Distributor" inverseName="distributor_product" inverseEntity="Distributor"/>
         <relationship name="product_orderItem" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="OrderItem" inverseName="orderItem_product" inverseEntity="OrderItem"/>
         <relationship name="product_stockLog" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="StockLog" inverseName="stockLog_product" inverseEntity="StockLog"/>
         <relationship name="product_Supplier" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="Supplier" inverseName="supplier_product" inverseEntity="Supplier"/>
@@ -96,8 +112,8 @@
     </entity>
     <entity name="Supplier" representedClassName="Supplier" syncable="YES" codeGenerationType="class">
         <attribute name="address" optional="YES" attributeType="String"/>
-        <attribute name="contact" optional="YES" attributeType="String"/>
         <attribute name="companyName" optional="YES" attributeType="String"/>
+        <attribute name="contact" optional="YES" attributeType="String"/>
         <attribute name="gstNumber" optional="YES" attributeType="String"/>
         <attribute name="id" optional="YES" attributeType="UUID" usesScalarValueType="NO"/>
         <attribute name="imageData" optional="YES" attributeType="Binary"/>

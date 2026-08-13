@@ -26,11 +26,20 @@ class OrderViewModel: ObservableObject {
     @Published var orders: [Order] = []
     @Published var products: [Product] = []
     @Published var suppliers: [Supplier] = []
+    @Published var distributors: [Distributor] = []
     
-    @Published var orderType: String = "purchase"
+    @Published var orderType: String = "purchase" {
+        didSet {
+            guard oldValue != orderType else { return }
+            selectedItems = []
+            selectedProduct = nil
+            selectedQuantity = 1
+        }
+    }
     @Published var orderStatus: String = "Pending"
     @Published var filterType: String = "all"
     @Published var selectedSupplier: Supplier?
+    @Published var selectedDistributor: Distributor?
     @Published var selectedProduct: Product?
     @Published var selectedQuantity: Int = 1
     @Published var selectedItems: [OrderItemDraft] = []
@@ -46,6 +55,7 @@ class OrderViewModel: ObservableObject {
         fetchOrders()
         fetchProducts()
         fetchSuppliers()
+        fetchDistributors()
         observeContextChanges()
     }
     
@@ -57,6 +67,7 @@ class OrderViewModel: ObservableObject {
                 self?.fetchOrders()
                 self?.fetchProducts()
                 self?.fetchSuppliers()
+                self?.fetchDistributors()
             }
     }
     
@@ -94,6 +105,17 @@ class OrderViewModel: ObservableObject {
             suppliers = try viewContext.fetch(request)
         } catch {
             print("Error in fetching suppliers: \(error.localizedDescription)")
+        }
+    }
+    
+    func fetchDistributors() {
+        let request: NSFetchRequest<Distributor> = Distributor.fetchRequest()
+        request.sortDescriptors = [NSSortDescriptor(keyPath: \Distributor.name, ascending: true)]
+        
+        do {
+            distributors = try viewContext.fetch(request)
+        } catch {
+            print("Error in fetching distributors: \(error.localizedDescription)")
         }
     }
     
@@ -156,6 +178,7 @@ class OrderViewModel: ObservableObject {
         orderType = "purchase"
         orderStatus = "Pending"
         selectedSupplier = nil
+        selectedDistributor = nil
         selectedProduct = nil
         selectedQuantity = 1
         selectedItems = []
@@ -164,6 +187,12 @@ class OrderViewModel: ObservableObject {
     func createOrder() -> Bool {
         if isPurchase && selectedSupplier == nil {
             alertMessage = "Please select a supplier for the purchase order."
+            showAlert = true
+            return false
+        }
+        
+        if !isPurchase && selectedDistributor == nil {
+            alertMessage = "Please select a distributor for the sale order."
             showAlert = true
             return false
         }
@@ -193,6 +222,8 @@ class OrderViewModel: ObservableObject {
         
         if isPurchase {
             newOrder.order_supplier = selectedSupplier
+        } else {
+            newOrder.order_distributor = selectedDistributor
         }
         
         for item in selectedItems {
@@ -231,7 +262,13 @@ class OrderViewModel: ObservableObject {
         
         guard target != current else { return true }
         
-        if target == "delivered" {
+        if current == "delivered" && target != "delivered" {
+            guard reverseStockChanges(for: order) else {
+                alertMessage = "Unable to update status. Please try again."
+                showAlert = true
+                return false
+            }
+        } else if target == "delivered" {
             guard applyStockChanges(for: order) else {
                 alertMessage = "Cannot mark this order as delivered: insufficient stock for one or more items."
                 showAlert = true
@@ -257,13 +294,33 @@ class OrderViewModel: ObservableObject {
         
         for item in items {
             guard let product = item.orderItem_product else { continue }
-            let qty = item.quantity
-            
-            if !isPurchase && product.quantity < qty {
+            if !isPurchase && product.quantity < item.quantity {
                 return false
             }
-            
+        }
+        
+        for item in items {
+            guard let product = item.orderItem_product else { continue }
+            let qty = item.quantity
             let delta = isPurchase ? qty : -qty
+            let previousQuantity = product.quantity
+            product.quantity = previousQuantity + delta
+            createStockLog(for: product, previousQuantity: previousQuantity, newQuantity: product.quantity, changed: delta, transactionType: transactionType)
+        }
+        
+        return true
+    }
+    
+    private func reverseStockChanges(for order: Order) -> Bool {
+        guard let items = order.order_orderItem as? Set<OrderItem> else { return false }
+        
+        let isPurchase = order.orderType == "purchase"
+        let transactionType = order.orderType ?? ""
+        
+        for item in items {
+            guard let product = item.orderItem_product else { continue }
+            let qty = item.quantity
+            let delta = isPurchase ? -qty : qty
             let previousQuantity = product.quantity
             product.quantity = previousQuantity + delta
             createStockLog(for: product, previousQuantity: previousQuantity, newQuantity: product.quantity, changed: delta, transactionType: transactionType)

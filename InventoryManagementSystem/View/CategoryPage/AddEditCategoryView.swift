@@ -13,12 +13,24 @@ struct AddEditCategoryView: View {
     
     var categoryToEdit: Category?
     
+    private var availableCategories: [String] {
+        var names = CategoryViewModel.presetCategories
+        if let existingName = categoryToEdit?.name, !existingName.isEmpty, !names.contains(existingName) {
+            names.append(existingName)
+        }
+        return names
+    }
+    
     var body: some View {
         NavigationStack {
             Form {
                 Section("Category Details") {
-                    TextField("Category Name", text: $categoryModel.categoryName)
-                        .autocapitalization(.words)
+                    Picker("Category Name", selection: $categoryModel.categoryName) {
+                        ForEach(availableCategories, id: \.self) { name in
+                            Text(name).tag(name)
+                        }
+                    }
+                    .pickerStyle(.menu)
                 }
             }
             .navigationTitle(categoryToEdit == nil ? "New Category" : "Edit Category")
@@ -52,7 +64,15 @@ struct AddEditCategoryView: View {
                     categoryModel.populateFields(for: category)
                 } else {
                     categoryModel.clearFields()
+                    categoryModel.categoryName = CategoryViewModel.presetCategories.first ?? ""
                 }
+            }
+            .alert("Category Name Error", isPresented: $categoryModel.showAlert){
+                Button("Ok", role: .cancel){
+                    categoryModel.showAlert = false
+                }
+            } message: {
+                Text(categoryModel.alertMessage)
             }
         }
         .presentationDetents([.height(400)])

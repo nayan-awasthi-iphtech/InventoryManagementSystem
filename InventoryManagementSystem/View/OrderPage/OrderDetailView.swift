@@ -130,8 +130,8 @@ struct OrderDetailView: View {
             
             infoRow(
                 icon: "building.2",
-                label: "Supplier",
-                value: order.order_supplier?.name ?? "N/A"
+                label: isPurchase ? "Supplier" : "Distributor",
+                value: isPurchase ? (order.order_supplier?.name ?? "N/A") : (order.order_distributor?.name ?? "N/A")
             )
             infoRow(
                 icon: "tag.fill",

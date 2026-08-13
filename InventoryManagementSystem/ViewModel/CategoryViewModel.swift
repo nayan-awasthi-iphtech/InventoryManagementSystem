@@ -11,6 +11,8 @@ import CoreData
 
 class CategoryViewModel: ObservableObject {
     
+    static let presetCategories = ["Electronics", "Furniture", "Grocery", "Clothing", "Accessories"]
+    
     @Published var categories: [Category] = []
     @Published var categoryName: String = ""
     

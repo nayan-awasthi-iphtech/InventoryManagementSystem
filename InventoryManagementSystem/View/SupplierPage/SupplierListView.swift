@@ -11,9 +11,22 @@ import CoreData
 struct SupplierListView: View {
     
     @StateObject var supplierViewModel = SupplierViewModel()
+    @StateObject var distributorViewModel = DistributorViewModel()
+    @Binding var orderCategory: Ordercategories
     @State private var showAddSheet: Bool = false
     @State private var supplierToDelete: Supplier?
     @State private var showDeleteAlert: Bool = false
+    
+    enum Ordercategories: String, Identifiable, CaseIterable{
+        case supplier = "Suppliers"
+        case distributer = "Distributors"
+        
+        var id: String {rawValue}
+    }
+    
+    init(section: Binding<Ordercategories> = .constant(.supplier)) {
+        _orderCategory = section
+    }
     
     var body: some View {
         NavigationStack {
@@ -25,7 +38,7 @@ struct SupplierListView: View {
                 VStack(spacing: 0) {
                     
                     ZStack {
-                        Text("Suppliers")
+                        Text(orderCategory == .supplier ? "Suppliers" : "Distributors")
                             .font(.system(size: 34, weight: .bold, design: .rounded))
                             .foregroundStyle(.primary)
                             .frame(maxWidth: .infinity, alignment: .center)
@@ -47,52 +60,72 @@ struct SupplierListView: View {
                     }
                     .padding(.top, 8)
                     
+                    Picker("Section", selection: $orderCategory){
+                        ForEach(Ordercategories.allCases){ section in
+                            Text(section.rawValue).tag(section)
+                        }
+                    }
+                    .pickerStyle(.segmented)
+                    .padding(.horizontal, 16)
+                    .padding(.top, 15)
+                    
                     Group {
-                        if supplierViewModel.suppliers.isEmpty {
-                            ContentUnavailableView(
-                                "No Suppliers available",
-                                systemImage: "cube.box",
-                                description: Text("Tap + to add the suppliers")
-                            )
+                        
+                        if orderCategory == .distributer {
+                            DistributorListView()
+                                .environmentObject(distributorViewModel)
                         } else {
-                            List {
-                                ForEach(supplierViewModel.suppliers) { supplier in
-                                    NavigationLink(destination: SupplierDetailView(supplier: supplier).environmentObject(supplierViewModel)) {
-                                        SupplierRow(supplier: supplier)
-                                    }
-                                    .swipeActions(edge: .trailing, allowsFullSwipe: false) {
-                                        Button(role: .destructive) {
-                                            supplierToDelete = supplier
-                                            showDeleteAlert = true
-                                        } label: {
-                                            Label("Delete", systemImage: "trash")
+                            if supplierViewModel.suppliers.isEmpty {
+                                ContentUnavailableView(
+                                    "No Suppliers available",
+                                    systemImage: "cube.box",
+                                    description: Text("Tap + to add the suppliers")
+                                )
+                            } else {
+                                List {
+                                    ForEach(supplierViewModel.suppliers) { supplier in
+                                        NavigationLink(destination: SupplierDetailView(supplier: supplier).environmentObject(supplierViewModel)) {
+                                            SupplierRow(supplier: supplier)
+                                        }
+                                        .swipeActions(edge: .trailing, allowsFullSwipe: false) {
+                                            Button(role: .destructive) {
+                                                supplierToDelete = supplier
+                                                showDeleteAlert = true
+                                            } label: {
+                                                Label("Delete", systemImage: "trash")
+                                            }
                                         }
                                     }
                                 }
+                                .scrollContentBackground(.hidden)
                             }
-                            .scrollContentBackground(.hidden)
                         }
                     }
-                }
-                .sheet(isPresented: $showAddSheet) {
-                    AddEditSupplier()
-                        .environmentObject(supplierViewModel)
-                }
-                .alert("Delete Supplier", isPresented: $showDeleteAlert) {
-                    Button("Delete", role: .destructive) {
-                        if let supplier = supplierToDelete {
-                            _ = supplierViewModel.deleteSupplier(supplier)
+                    .sheet(isPresented: $showAddSheet) {
+                        if orderCategory == .supplier {
+                            AddEditSupplier()
+                                .environmentObject(supplierViewModel)
+                        } else {
+                            AddEditDistributor()
+                                .environmentObject(distributorViewModel)
                         }
-                        supplierToDelete = nil
                     }
-                    Button("Cancel", role: .cancel) {
-                        supplierToDelete = nil
+                    .alert("Delete Supplier", isPresented: $showDeleteAlert) {
+                        Button("Delete", role: .destructive) {
+                            if let supplier = supplierToDelete {
+                                _ = supplierViewModel.deleteSupplier(supplier)
+                            }
+                            supplierToDelete = nil
+                        }
+                        Button("Cancel", role: .cancel) {
+                            supplierToDelete = nil
+                        }
+                    } message: {
+                        Text("Are you sure you want to delete '\(supplierToDelete?.name ?? "this supplier")'? This action cannot be undone.")
                     }
-                } message: {
-                    Text("Are you sure you want to delete '\(supplierToDelete?.name ?? "this supplier")'? This action cannot be undone.")
-                }
-                .onAppear {
-                    supplierViewModel.fetchSuppliers()
+                    .onAppear {
+                        supplierViewModel.fetchSuppliers()
+                    }
                 }
             }
         }
@@ -136,6 +169,11 @@ private struct SupplierRow: View {
             Spacer()
             
             VStack(alignment: .trailing, spacing: 4) {
+                
+                Text("Contact No.")
+                    .font(.caption)
+                    .fontWeight(.bold)
+                
                 Text(supplier.contact ?? "")
                     .font(.caption)
                     .fontWeight(.medium)

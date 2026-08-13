@@ -70,6 +70,7 @@ class StockViewModel: ObservableObject {
         guard let product = selectedProduct else {
             alertMessage = "Please select a product."
             showAlert = true
+            clearFields()
             return false
         }
         
@@ -77,19 +78,26 @@ class StockViewModel: ObservableObject {
         guard qty > 0 else {
             alertMessage = "Please enter a valid quantity greater than zero."
             showAlert = true
+            clearFields()
             return false
         }
         
         let previous = product.quantity
         product.quantity = previous + qty
         createLog(for: product, previous: previous, new: product.quantity, changed: qty, type: "stockin")
-        return saveContext()
+        if saveContext() {
+            clearFields()
+            return true
+        }
+        clearFields()
+        return false
     }
     
     func performStockOut() -> Bool {
         guard let product = selectedProduct else {
             alertMessage = "Please select a product."
             showAlert = true
+            clearFields()
             return false
         }
         
@@ -97,19 +105,26 @@ class StockViewModel: ObservableObject {
         guard qty > 0 else {
             alertMessage = "Please enter a valid quantity greater than zero."
             showAlert = true
+            clearFields()
             return false
         }
         
         guard product.quantity >= qty else {
             alertMessage = "Insufficient stock for '\(product.name ?? "this product")'. Available: \(product.quantity)."
             showAlert = true
+            clearFields()
             return false
         }
         
         let previous = product.quantity
         product.quantity = previous - qty
         createLog(for: product, previous: previous, new: product.quantity, changed: -qty, type: "stockout")
-        return saveContext()
+        if saveContext() {
+            clearFields()
+            return true
+        }
+        clearFields()
+        return false
     }
     
     private func createLog(for product: Product, previous: Int32, new: Int32, changed: Int32, type: String) {
@@ -122,6 +137,11 @@ class StockViewModel: ObservableObject {
         log.date = Date()
         log.stockLog_product = product
         log.stockLog_admin = SessionManager.shared.currentAdmin
+    }
+    
+    func clearFields() {
+        selectedProduct = nil
+        quantity = ""
     }
     
     func saveContext() -> Bool {

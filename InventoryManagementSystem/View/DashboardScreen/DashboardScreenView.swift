@@ -9,7 +9,10 @@ import SwiftUI
 import CoreData
 
 struct DashboardScreenView: View {
-
+    
+    var onShowSuppliers: () -> Void = {}
+    var onShowDistributors: () -> Void = {}
+    
     @Environment(\.dismiss) private var dismiss
     @StateObject private var authViewModel = AuthViewModel()
     @StateObject private var session = SessionManager.shared
@@ -113,14 +116,33 @@ struct DashboardScreenView: View {
                                 subtextColor: .gray
                             )
                             
-                            MetricCard(
-                                iconName: "square.fill",
-                                iconColor: .green,
-                                mainValue: "\(dashboardViewModel.suppliers.count)",
-                                label: "Suppliers",
-                                subtext: "Registered suppliers",
-                                subtextColor: .gray
-                            )
+                            Button {
+                                onShowSuppliers()
+                            } label: {
+                                MetricCard(
+                                    iconName: "square.fill",
+                                    iconColor: .green,
+                                    mainValue: "\(dashboardViewModel.suppliers.count)",
+                                    label: "Suppliers",
+                                    subtext: "Registered suppliers",
+                                    subtextColor: .gray
+                                )
+                            }
+                            .buttonStyle(.plain)
+                            
+                            Button {
+                                onShowDistributors()
+                            } label: {
+                                MetricCard(
+                                    iconName: "square.fill",
+                                    iconColor: .purple,
+                                    mainValue: "\(dashboardViewModel.distributors.count)",
+                                    label: "Distributors",
+                                    subtext: "Registered distributors",
+                                    subtextColor: .gray
+                                )
+                            }
+                            .buttonStyle(.plain)
                             
                             MetricCard(
                                 iconName: "square.fill",

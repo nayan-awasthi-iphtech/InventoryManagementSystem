@@ -15,6 +15,7 @@ struct CategoryListView: View {
     @State private var categoryToEdit: Category? = nil
     @State private var categoryToDelete: Category? = nil
     @State private var showDeleteAlert: Bool = false
+    @State private var newCategorySelection: String? = nil
     
     var body: some View {
         NavigationStack {
@@ -28,31 +29,56 @@ struct CategoryListView: View {
                             .font(.system(size: 34, weight: .bold, design: .rounded))
                             .foregroundStyle(.primary)
                             .frame(maxWidth: .infinity, alignment: .center)
-                        
-                        HStack {
-                            Spacer()
-                            Button {
-                                categoryToEdit = nil
-                                showAddSheet = true
-                            } label: {
-                                Image(systemName: "plus")
-                                    .font(.body.weight(.semibold))
-                                    .foregroundStyle(.white)
-                                    .frame(width: 40, height: 40)
-                                    .background(Color.blue)
-                                    .clipShape(Circle())
-                            }
-                        }
-                        .padding(.horizontal, 16)
                     }
                     .padding(.top, 8)
+                    
+                    HStack(spacing: 10) {
+                        Image(systemName: "folder.badge.plus")
+                            .foregroundStyle(.blue)
+                        
+                        Text("Add Category")
+                            .font(.subheadline)
+                            .fontWeight(.medium)
+                            .foregroundStyle(.primary)
+                        
+                        Spacer()
+                        
+                        Picker("Add Category", selection: $newCategorySelection) {
+                            Text("Select").tag(nil as String?)
+                            ForEach(CategoryViewModel.presetCategories, id: \.self) { name in
+                                Text(name).tag(name as String?)
+                            }
+                        }
+                        .pickerStyle(.menu)
+                        .tint(.blue)
+                    }
+                    .padding(.horizontal, 12)
+                    .frame(height: 48)
+                    .background(Color.white)
+                    .clipShape(RoundedRectangle(cornerRadius: 12))
+                    .overlay(RoundedRectangle(cornerRadius: 12).stroke(Color.gray.opacity(0.2), lineWidth: 1))
+                    .padding(.horizontal, 16)
+                    .padding(.top, 12)
+                    .onChange(of: newCategorySelection) { _, newValue in
+                        guard let name = newValue else { return }
+                        categoryModel.categoryName = name
+                        _ = categoryModel.addCategory()
+                        newCategorySelection = nil
+                    }
+                    .alert("Category Name Error", isPresented: $categoryModel.showAlert) {
+                        Button("OK", role: .cancel) {
+                            categoryModel.showAlert = false
+                        }
+                    } message: {
+                        Text(categoryModel.alertMessage)
+                    }
                     
                     Group {
                         if categoryModel.categories.isEmpty {
                             ContentUnavailableView(
                                 "No Categories Found",
                                 systemImage: "folder.badge.plus",
-                                description: Text("Tap '+' to create your first category.")
+                                description: Text("Select a category above to add your first category.")
                             )
                         } else {
                             List {
