@@ -19,10 +19,10 @@ struct SupplierProductRow: View {
                         .scaledToFill()
                 } else {
                     RoundedRectangle(cornerRadius: 8)
-                        .fill(Color.blue.opacity(0.15))
+                        .fill(AppTheme.accent.opacity(0.15))
                         .overlay(
                             Image(systemName: "cube.fill")
-                                .foregroundStyle(.blue)
+                                .foregroundStyle(AppTheme.accent)
                         )
                 }
             }
@@ -33,12 +33,12 @@ struct SupplierProductRow: View {
                 Text(product.name ?? "Unnamed Product")
                     .font(.subheadline)
                     .fontWeight(.medium)
-                    .foregroundStyle(.primary)
+                    .foregroundStyle(AppTheme.primaryText)
                     .lineLimit(1)
                 
                 Text(product.product_category?.name ?? "Uncategorized")
                     .font(.caption)
-                    .foregroundStyle(.gray)
+                    .foregroundStyle(AppTheme.secondaryText)
             }
             
             Spacer()
@@ -47,15 +47,16 @@ struct SupplierProductRow: View {
                 Text(product.price.formatted(.currency(code: "INR")))
                     .font(.subheadline)
                     .fontWeight(.semibold)
+                    .foregroundStyle(AppTheme.primaryText)
                 
                 HStack(spacing: 4) {
                     Circle()
-                        .fill(product.quantity > 0 ? Color.green : Color.red)
+                        .fill(product.quantity > 0 ? AppTheme.success : AppTheme.danger)
                         .frame(width: 6, height: 6)
                     Text("Qty: \(product.quantity)")
                         .font(.caption)
                         .fontWeight(.medium)
-                        .foregroundStyle(product.quantity > 0 ? .green : .red)
+                        .foregroundStyle(product.quantity > 0 ? AppTheme.success : AppTheme.danger)
                 }
             }
         }

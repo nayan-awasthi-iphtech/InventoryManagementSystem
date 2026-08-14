@@ -30,28 +30,35 @@ struct OrderListView: View {
                     .ignoresSafeArea()
                 
                 VStack(spacing: 0) {
-                    ZStack {
-                        Text("Orders")
-                            .font(.system(size: 34, weight: .bold, design: .rounded))
-                            .foregroundStyle(.primary)
-                            .frame(maxWidth: .infinity, alignment: .center)
-                        
-                        HStack {
-                            Spacer()
-                            Button {
-                                orderViewModel.clearFields()
-                                showAddSheet = true
-                            } label: {
-                                Image(systemName: "plus")
-                                    .font(.body.weight(.semibold))
-                                    .foregroundStyle(.white)
-                                    .frame(width: 40, height: 40)
-                                    .background(Color.blue)
-                                    .clipShape(Circle())
-                            }
+                    HStack(alignment: .top) {
+                        VStack(alignment: .leading, spacing: 2) {
+                            Text("Inventora")
+                                .font(.title3)
+                                .fontWeight(.medium)
+                                .foregroundStyle(AppTheme.accent)
+                            
+                            Text("Orders")
+                                .font(.system(size: 34, weight: .bold))
+                                .foregroundStyle(AppTheme.primaryText)
                         }
-                        .padding(.horizontal, 16)
+                        
+                        Spacer()
+                        
+                        Button {
+                            orderViewModel.clearFields()
+                            showAddSheet = true
+                        } label: {
+                            Image(systemName: "plus")
+                                .font(.system(size: 18, weight: .semibold))
+                                .foregroundStyle(.white)
+                                .frame(width: 44, height: 44)
+                                .background(AppTheme.accent)
+                                .clipShape(Circle())
+                                .shadow(color: AppTheme.accent.opacity(0.3), radius: 6, y: 3)
+                        }
+                        .padding(.top, 4)
                     }
+                    .padding(.horizontal, 16)
                     .padding(.top, 8)
                     
                     Picker("Section", selection: $selectedSection) {
@@ -65,7 +72,7 @@ struct OrderListView: View {
                     
                     Group {
                         if selectedSection == .reports {
-//                            ReportsContent()
+                            //                            ReportsContent()
                         } else {
                             VStack(spacing: 0) {
                                 Picker("Filter", selection: $orderViewModel.filterType) {
@@ -76,6 +83,7 @@ struct OrderListView: View {
                                 .pickerStyle(.segmented)
                                 .padding(.horizontal, 16)
                                 .padding(.top, 15)
+                                .padding(.bottom, 10)
                                 
                                 if orderViewModel.filteredOrders.isEmpty {
                                     ContentUnavailableView(
@@ -88,7 +96,19 @@ struct OrderListView: View {
                                         ForEach(orderViewModel.filteredOrders, id: \.objectID) { order in
                                             NavigationLink(destination: OrderDetailView(order: order).environmentObject(orderViewModel)) {
                                                 OrderRow(order: order)
+                                                    .padding(10)
+                                                    .background(
+                                                        RoundedRectangle(cornerRadius: 14)
+                                                            .fill(AppTheme.cardBackground)
+                                                    )
+                                                    .overlay(
+                                                        RoundedRectangle(cornerRadius: 14)
+                                                            .stroke(Color.primary.opacity(0.06), lineWidth: 1)
+                                                    )
                                             }
+                                            .listRowBackground(Color.clear)
+                                            .listRowInsets(EdgeInsets(top: 2, leading: 20, bottom: 4, trailing: 20))
+                                            .listRowSeparator(.hidden)
                                             .swipeActions(edge: .trailing, allowsFullSwipe: false) {
                                                 Button(role: .destructive) {
                                                     orderToDelete = order
@@ -99,6 +119,7 @@ struct OrderListView: View {
                                             }
                                         }
                                     }
+                                    .contentMargins(.top, 6, for: .scrollContent)
                                     .scrollContentBackground(.hidden)
                                 }
                             }
@@ -163,7 +184,7 @@ private struct OrderRow: View {
     @ObservedObject var order: Order
     
     var body: some View {
-        HStack(spacing: 12) {
+        HStack(spacing: 18) {
             ZStack {
                 RoundedRectangle(cornerRadius: 8)
                     .fill(typeColor.opacity(0.15))
@@ -177,11 +198,12 @@ private struct OrderRow: View {
             VStack(alignment: .leading, spacing: 4) {
                 Text(order.orderNumber ?? "Order")
                     .font(.headline)
+                    .foregroundStyle(AppTheme.primaryText)
                     .lineLimit(1)
                 
                 Text("\(order.orderType?.capitalized ?? "Order") • \(order.orderDate?.formatted(date: .abbreviated, time: .omitted) ?? "N/A")")
                     .font(.caption)
-                    .foregroundStyle(.gray)
+                    .foregroundStyle(AppTheme.secondaryText)
             }
             
             Spacer()
@@ -190,6 +212,7 @@ private struct OrderRow: View {
                 Text(order.totalAmount.formatted(.currency(code: "INR")))
                     .font(.subheadline)
                     .fontWeight(.semibold)
+                    .foregroundStyle(AppTheme.primaryText)
                 
                 Text(order.status ?? "Completed")
                     .font(.caption2)
@@ -197,21 +220,21 @@ private struct OrderRow: View {
                     .foregroundStyle(statusColor)
             }
         }
-        .padding(.vertical, 4)
+        .padding(.vertical, 2)
     }
     
     private var typeColor: Color {
-        order.orderType == "purchase" ? .green : .orange
+        order.orderType == "purchase" ? AppTheme.success : AppTheme.warning
     }
     
     private var statusColor: Color {
         switch order.status?.lowercased() {
-        case "pending": return .orange
-        case "approved": return .blue
+        case "pending": return AppTheme.warning
+        case "approved": return AppTheme.accent
         case "shipped": return .indigo
-        case "delivered", "completed": return .green
-        case "cancelled": return .red
-        default: return .gray
+        case "delivered", "completed": return AppTheme.success
+        case "cancelled": return AppTheme.danger
+        default: return AppTheme.secondaryText
         }
     }
 }

@@ -88,12 +88,12 @@ struct AddEditOrderView: View {
                                 Text("Remove")
                                     .font(.system(size: 13, weight: .semibold))
                             }
-                            .foregroundStyle(.red)
+                            .foregroundStyle(AppTheme.danger)
                             .frame(maxWidth: .infinity)
                             .frame(height: 40)
                             .background(
                                 RoundedRectangle(cornerRadius: 10)
-                                    .fill(Color.red.opacity(0.10))
+                                    .fill(AppTheme.danger.opacity(0.10))
                             )
                             .contentShape(Rectangle())
                         }
@@ -120,7 +120,7 @@ struct AddEditOrderView: View {
                             .frame(height: 40)
                             .background(
                                 RoundedRectangle(cornerRadius: 10)
-                                    .fill(Color.blue)
+                                    .fill(AppTheme.accent)
                             )
                             .contentShape(Rectangle())
                         }
@@ -141,7 +141,7 @@ struct AddEditOrderView: View {
                                     
                                     Text("\(item.quantity) × \(item.product.price, specifier: "%.2f")")
                                         .font(.caption)
-                                        .foregroundStyle(.gray)
+                                        .foregroundStyle(AppTheme.secondaryText)
                                 }
                                 
                                 Spacer()

@@ -51,7 +51,7 @@ struct OrderDetailView: View {
                     showDeleteAlert = true
                 } label: {
                     Image(systemName: "trash")
-                        .foregroundStyle(.red)
+                        .foregroundStyle(AppTheme.danger)
                 }
             }
         }
@@ -83,6 +83,7 @@ struct OrderDetailView: View {
                 Text(order.orderNumber ?? "Order")
                     .font(.title2)
                     .fontWeight(.bold)
+                    .foregroundStyle(AppTheme.primaryText)
                     .multilineTextAlignment(.center)
                 
                 HStack(spacing: 8) {
@@ -107,13 +108,19 @@ struct OrderDetailView: View {
                 
                 Text(order.orderDate?.formatted(date: .long, time: .shortened) ?? "N/A")
                     .font(.caption)
-                    .foregroundStyle(.gray)
+                    .foregroundStyle(AppTheme.secondaryText)
             }
         }
         .frame(maxWidth: .infinity)
         .padding()
-        .background(Color(.secondarySystemGroupedBackground))
-        .clipShape(RoundedRectangle(cornerRadius: 20))
+        .background(
+            RoundedRectangle(cornerRadius: 14)
+                .fill(AppTheme.cardBackground)
+        )
+        .overlay(
+            RoundedRectangle(cornerRadius: 14)
+                .stroke(Color.primary.opacity(0.06), lineWidth: 1)
+        )
     }
     
     private var infoSection: some View {
@@ -121,9 +128,10 @@ struct OrderDetailView: View {
             HStack(spacing: 8) {
                 Image(systemName: "info.circle")
                     .font(.headline)
-                    .foregroundStyle(.blue)
+                    .foregroundStyle(AppTheme.accent)
                 Text("Order Information")
                     .font(.headline)
+                    .foregroundStyle(AppTheme.primaryText)
             }
             
             Divider()
@@ -142,17 +150,17 @@ struct OrderDetailView: View {
             HStack(spacing: 8) {
                 HStack(spacing: 8) {
                     Image(systemName: "checkmark.seal.fill")
-                        .foregroundStyle(.secondary)
+                        .foregroundStyle(AppTheme.secondaryText)
                         .frame(width: 20)
                     Text("Status")
                         .font(.subheadline)
                         .fontWeight(.bold)
-                        .foregroundStyle(.secondary)
+                        .foregroundStyle(AppTheme.secondaryText)
                     
                     if isDelivered {
                         Image(systemName: "lock.fill")
                             .font(.caption2)
-                            .foregroundStyle(.secondary)
+                            .foregroundStyle(AppTheme.secondaryText)
                     }
                 }
                 
@@ -168,10 +176,16 @@ struct OrderDetailView: View {
                 .disabled(isDelivered)
             }
         }
-        .padding()
+        .padding(16)
         .frame(maxWidth: .infinity, alignment: .leading)
-        .background(Color(.secondarySystemGroupedBackground))
-        .clipShape(RoundedRectangle(cornerRadius: 16))
+        .background(
+            RoundedRectangle(cornerRadius: 14)
+                .fill(AppTheme.cardBackground)
+        )
+        .overlay(
+            RoundedRectangle(cornerRadius: 14)
+                .stroke(Color.primary.opacity(0.06), lineWidth: 1)
+        )
     }
     
     private var itemsSection: some View {
@@ -179,9 +193,10 @@ struct OrderDetailView: View {
             HStack(spacing: 8) {
                 Image(systemName: "shippingbox.fill")
                     .font(.headline)
-                    .foregroundStyle(.blue)
+                    .foregroundStyle(AppTheme.accent)
                 Text("Order Items (\(items.count))")
                     .font(.headline)
+                    .foregroundStyle(AppTheme.primaryText)
             }
             
             Divider()
@@ -190,11 +205,11 @@ struct OrderDetailView: View {
                 VStack(spacing: 10) {
                     Image(systemName: "shippingbox")
                         .font(.system(size: 40))
-                        .foregroundStyle(.gray.opacity(0.5))
+                        .foregroundStyle(AppTheme.secondaryText.opacity(0.5))
                     Text("No Items")
                         .font(.subheadline)
                         .fontWeight(.medium)
-                        .foregroundStyle(.secondary)
+                        .foregroundStyle(AppTheme.secondaryText)
                 }
                 .frame(maxWidth: .infinity)
                 .padding(.vertical, 24)
@@ -206,11 +221,11 @@ struct OrderDetailView: View {
                                 Text(item.orderItem_product?.name ?? "Unnamed Product")
                                     .font(.subheadline)
                                     .fontWeight(.medium)
-                                    .foregroundStyle(.primary)
+                                    .foregroundStyle(AppTheme.primaryText)
                                 
                                 Text("\(item.quantity) × \(item.unitprice.formatted(.currency(code: "INR")))")
                                     .font(.caption)
-                                    .foregroundStyle(.gray)
+                                    .foregroundStyle(AppTheme.secondaryText)
                             }
                             
                             Spacer()
@@ -218,6 +233,7 @@ struct OrderDetailView: View {
                             Text((Double(item.quantity) * item.unitprice).formatted(.currency(code: "INR")))
                                 .font(.subheadline)
                                 .fontWeight(.semibold)
+                                .foregroundStyle(AppTheme.primaryText)
                         }
                         .padding(.vertical, 8)
                         
@@ -228,38 +244,51 @@ struct OrderDetailView: View {
                 }
             }
         }
-        .padding()
+        .padding(16)
         .frame(maxWidth: .infinity, alignment: .leading)
-        .background(Color(.secondarySystemGroupedBackground))
-        .clipShape(RoundedRectangle(cornerRadius: 16))
+        .background(
+            RoundedRectangle(cornerRadius: 14)
+                .fill(AppTheme.cardBackground)
+        )
+        .overlay(
+            RoundedRectangle(cornerRadius: 14)
+                .stroke(Color.primary.opacity(0.06), lineWidth: 1)
+        )
     }
     
     private var totalSection: some View {
         HStack {
             Text("Total Amount")
                 .font(.headline)
+                .foregroundStyle(AppTheme.primaryText)
             Spacer()
             Text(order.totalAmount.formatted(.currency(code: "INR")))
                 .font(.title2)
                 .fontWeight(.bold)
-                .foregroundStyle(.primary)
+                .foregroundStyle(AppTheme.accent)
         }
-        .padding()
+        .padding(16)
         .frame(maxWidth: .infinity, alignment: .leading)
-        .background(Color(.secondarySystemGroupedBackground))
-        .clipShape(RoundedRectangle(cornerRadius: 16))
+        .background(
+            RoundedRectangle(cornerRadius: 14)
+                .fill(AppTheme.cardBackground)
+        )
+        .overlay(
+            RoundedRectangle(cornerRadius: 14)
+                .stroke(Color.primary.opacity(0.06), lineWidth: 1)
+        )
     }
     
     private func infoRow(icon: String, label: String, value: String) -> some View {
         HStack(spacing: 8) {
             HStack(spacing: 8) {
                 Image(systemName: icon)
-                    .foregroundStyle(.secondary)
+                    .foregroundStyle(AppTheme.secondaryText)
                     .frame(width: 20)
                 Text(label)
                     .font(.subheadline)
                     .fontWeight(.bold)
-                    .foregroundStyle(.secondary)
+                    .foregroundStyle(AppTheme.secondaryText)
             }
             
             Spacer()
@@ -267,7 +296,7 @@ struct OrderDetailView: View {
             Text(value)
                 .font(.subheadline)
                 .fontWeight(.medium)
-                .foregroundStyle(.primary)
+                .foregroundStyle(AppTheme.primaryText)
                 .multilineTextAlignment(.trailing)
         }
     }
@@ -289,17 +318,17 @@ struct OrderDetailView: View {
     }
     
     private var typeColor: Color {
-        isPurchase ? .green : .orange
+        isPurchase ? AppTheme.success : AppTheme.warning
     }
     
     private var statusColor: Color {
         switch order.status?.lowercased() {
-        case "pending": return .orange
-        case "approved": return .blue
+        case "pending": return AppTheme.warning
+        case "approved": return AppTheme.accent
         case "shipped": return .indigo
-        case "delivered", "completed": return .green
-        case "cancelled": return .red
-        default: return .gray
+        case "delivered", "completed": return AppTheme.success
+        case "cancelled": return AppTheme.danger
+        default: return AppTheme.secondaryText
         }
     }
 }

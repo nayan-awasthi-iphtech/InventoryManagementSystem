@@ -9,8 +9,8 @@ import SwiftUI
 
 /// Simple custom theme colors. Use these anywhere instead of hardcoded colors.
 enum AppTheme {
-    static let background = Color(red: 0.93, green: 0.96, blue: 0.99)
-    static let cardBackground = Color.white
+    static let background = Color(red: 0.85, green: 0.89, blue: 0.89)
+    static let cardBackground = Color(red: 0.97, green: 0.98, blue: 0.98)
     static let primaryText = Color(red: 0.10, green: 0.13, blue: 0.20)
     static let secondaryText = Color(red: 0.45, green: 0.49, blue: 0.55)
     static let accent = Color.blue

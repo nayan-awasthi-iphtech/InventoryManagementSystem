@@ -243,6 +243,10 @@ class OrderViewModel: ObservableObject {
             }
         }
         
+        if orderStatus == "Delivered" && !isPurchase {
+            linkDistributor(for: newOrder)
+        }
+        
         return saveContext()
     }
     
@@ -273,6 +277,9 @@ class OrderViewModel: ObservableObject {
                 alertMessage = "Cannot mark this order as delivered: insufficient stock for one or more items."
                 showAlert = true
                 return false
+            }
+            if order.orderType != "purchase" {
+                linkDistributor(for: order)
             }
         }
         
@@ -339,6 +346,18 @@ class OrderViewModel: ObservableObject {
         log.date = Date()
         log.stockLog_product = product
         log.stockLog_admin = SessionManager.shared.currentAdmin
+    }
+    
+    private func linkDistributor(for order: Order) {
+        guard let distributor = order.order_distributor,
+              let items = order.order_orderItem as? Set<OrderItem> else { return }
+        for item in items {
+            guard let product = item.orderItem_product else { continue }
+            distributor.distributor_product = product
+            if let category = product.product_category {
+                distributor.distributor_category = category
+            }
+        }
     }
     
     func saveContext() -> Bool {

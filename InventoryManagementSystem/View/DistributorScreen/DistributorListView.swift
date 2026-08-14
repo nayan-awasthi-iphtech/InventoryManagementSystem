@@ -28,14 +28,26 @@ struct DistributorListView: View {
                         ContentUnavailableView(
                             "No Distributors available",
                             systemImage: "cube.box",
-                            description: Text("Tap + to add the suppliers")
+                            description: Text("Tap + to add the distributors")
                         )
                     } else {
                         List {
                             ForEach(distributorViewModel.distributors) { distributor in
                                 NavigationLink(destination: DistributorDetailView(distributor: distributor).environmentObject(distributorViewModel)) {
                                     DistributorRow(distributor: distributor)
+                                        .padding(12)
+                                        .background(
+                                            RoundedRectangle(cornerRadius: 14)
+                                                .fill(AppTheme.cardBackground)
+                                        )
+                                        .overlay(
+                                            RoundedRectangle(cornerRadius: 14)
+                                                .stroke(Color.primary.opacity(0.06), lineWidth: 1)
+                                        )
                                 }
+                                .listRowBackground(Color.clear)
+                                .listRowInsets(EdgeInsets(top: 2, leading: 16, bottom: 4, trailing: 16))
+                                .listRowSeparator(.hidden)
                                 .swipeActions(edge: .trailing, allowsFullSwipe: false) {
                                     Button(role: .destructive) {
                                         distributorToDelete = distributor
@@ -46,6 +58,7 @@ struct DistributorListView: View {
                                 }
                             }
                         }
+                        .contentMargins(.top, 6, for: .scrollContent)
                         .scrollContentBackground(.hidden)
                     }
                 }
@@ -82,10 +95,10 @@ private struct DistributorRow: View {
                         .scaledToFill()
                 } else {
                     RoundedRectangle(cornerRadius: 8)
-                        .fill(Color.blue.opacity(0.15))
+                        .fill(AppTheme.accent.opacity(0.15))
                         .overlay(
                             Image(systemName: "person.2.fill")
-                                .foregroundStyle(.blue)
+                                .foregroundStyle(AppTheme.accent)
                         )
                         .frame(width: 48, height: 48)
                         .clipShape(RoundedRectangle(cornerRadius: 8))
@@ -97,11 +110,12 @@ private struct DistributorRow: View {
             VStack(alignment: .leading, spacing: 4) {
                 Text(distributor.name ?? "Unnamed Supplier")
                     .font(.headline)
+                    .foregroundStyle(AppTheme.primaryText)
                     .lineLimit(1)
                 
                 Text(distributor.address ?? "Unknown address")
                     .font(.caption)
-                    .foregroundStyle(.gray)
+                    .foregroundStyle(AppTheme.secondaryText)
             }
             
             Spacer()
@@ -110,10 +124,12 @@ private struct DistributorRow: View {
                 Text("Contact No.")
                     .font(.caption)
                     .fontWeight(.bold)
+                    .foregroundStyle(AppTheme.secondaryText)
                 
                 Text(distributor.contact ?? "")
                     .font(.caption)
                     .fontWeight(.medium)
+                    .foregroundStyle(AppTheme.primaryText)
             }
         }
         .padding(.vertical, 4)

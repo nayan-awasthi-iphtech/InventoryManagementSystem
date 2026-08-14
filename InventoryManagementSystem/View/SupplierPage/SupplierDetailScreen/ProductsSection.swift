@@ -22,9 +22,10 @@ struct ProductsSection: View {
             HStack(spacing: 8) {
                 Image(systemName: "cube.box")
                     .font(.headline)
-                    .foregroundStyle(.blue)
+                    .foregroundStyle(AppTheme.accent)
                 Text("Products Supplied by this Supplier")
                     .font(.headline)
+                    .foregroundStyle(AppTheme.primaryText)
             }
             
             Divider()
@@ -33,14 +34,14 @@ struct ProductsSection: View {
                 VStack(spacing: 10) {
                     Image(systemName: "cube.box")
                         .font(.system(size: 40))
-                        .foregroundStyle(.gray.opacity(0.5))
+                        .foregroundStyle(AppTheme.secondaryText.opacity(0.5))
                     Text("No Products")
                         .font(.subheadline)
                         .fontWeight(.medium)
-                        .foregroundStyle(.secondary)
+                        .foregroundStyle(AppTheme.secondaryText)
                     Text("This supplier has not supplied any products yet.")
                         .font(.caption)
-                        .foregroundStyle(.secondary)
+                        .foregroundStyle(AppTheme.secondaryText)
                 }
                 .frame(maxWidth: .infinity)
                 .padding(.vertical, 24)
@@ -62,9 +63,15 @@ struct ProductsSection: View {
                 }
             }
         }
-        .padding()
+        .padding(16)
         .frame(maxWidth: .infinity, alignment: .leading)
-        .background(Color(.secondarySystemGroupedBackground))
-        .clipShape(RoundedRectangle(cornerRadius: 16))
+        .background(
+            RoundedRectangle(cornerRadius: 14)
+                .fill(AppTheme.cardBackground)
+        )
+        .overlay(
+            RoundedRectangle(cornerRadius: 14)
+                .stroke(Color.primary.opacity(0.06), lineWidth: 1)
+        )
     }
 }

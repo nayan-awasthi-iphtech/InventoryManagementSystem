@@ -24,22 +24,45 @@ struct CategoryListView: View {
                     .ignoresSafeArea()
                 
                 VStack(spacing: 0) {
-                    ZStack {
-                        Text("Categories")
-                            .font(.system(size: 34, weight: .bold, design: .rounded))
-                            .foregroundStyle(.primary)
-                            .frame(maxWidth: .infinity, alignment: .center)
+                    HStack(alignment: .top) {
+                        VStack(alignment: .leading, spacing: 2) {
+                            Text("Inventora")
+                                .font(.title3)
+                                .fontWeight(.medium)
+                                .foregroundStyle(AppTheme.accent)
+                            
+                            Text("Categories")
+                                .font(.system(size: 34, weight: .bold))
+                                .foregroundStyle(AppTheme.primaryText)
+                        }
+                        
+                        Spacer()
+                        
+                        Button {
+                            categoryToEdit = nil
+                            showAddSheet = true
+                        } label: {
+                            Image(systemName: "plus")
+                                .font(.system(size: 18, weight: .semibold))
+                                .foregroundStyle(.white)
+                                .frame(width: 44, height: 44)
+                                .background(AppTheme.accent)
+                                .clipShape(Circle())
+                                .shadow(color: AppTheme.accent.opacity(0.3), radius: 6, y: 3)
+                        }
+                        .padding(.top, 4)
                     }
+                    .padding(.horizontal, 16)
                     .padding(.top, 8)
                     
                     HStack(spacing: 10) {
                         Image(systemName: "folder.badge.plus")
-                            .foregroundStyle(.blue)
+                            .foregroundStyle(AppTheme.accent)
                         
                         Text("Add Category")
                             .font(.subheadline)
                             .fontWeight(.medium)
-                            .foregroundStyle(.primary)
+                            .foregroundStyle(AppTheme.primaryText)
                         
                         Spacer()
                         
@@ -50,15 +73,21 @@ struct CategoryListView: View {
                             }
                         }
                         .pickerStyle(.menu)
-                        .tint(.blue)
+                        .tint(AppTheme.accent)
                     }
                     .padding(.horizontal, 12)
                     .frame(height: 48)
-                    .background(Color.white)
-                    .clipShape(RoundedRectangle(cornerRadius: 12))
-                    .overlay(RoundedRectangle(cornerRadius: 12).stroke(Color.gray.opacity(0.2), lineWidth: 1))
+                    .background(
+                        RoundedRectangle(cornerRadius: 12)
+                            .fill(AppTheme.cardBackground)
+                    )
+                    .overlay(
+                        RoundedRectangle(cornerRadius: 12)
+                            .stroke(Color.primary.opacity(0.06), lineWidth: 1)
+                    )
                     .padding(.horizontal, 16)
-                    .padding(.top, 12)
+                    .padding(.top, 10)
+                    .padding(.bottom, 12)
                     .onChange(of: newCategorySelection) { _, newValue in
                         guard let name = newValue else { return }
                         categoryModel.categoryName = name
@@ -90,7 +119,19 @@ struct CategoryListView: View {
                                             categoryToEdit = category
                                             showAddSheet = true
                                         }
+                                        .padding(16)
+                                        .background(
+                                            RoundedRectangle(cornerRadius: 14)
+                                                .fill(AppTheme.cardBackground)
+                                        )
+                                        .overlay(
+                                            RoundedRectangle(cornerRadius: 14)
+                                                .stroke(Color.primary.opacity(0.06), lineWidth: 1)
+                                        )
                                     }
+                                    .listRowBackground(Color.clear)
+                                    .listRowInsets(EdgeInsets(top: 3, leading: 16, bottom: 4, trailing: 16))
+                                    .listRowSeparator(.hidden)
                                     .swipeActions(edge: .trailing, allowsFullSwipe: false) {
                                         Button(role: .destructive) {
                                             categoryToDelete = category
@@ -102,6 +143,7 @@ struct CategoryListView: View {
                                 }
                             }
                             .scrollContentBackground(.hidden)
+                            .contentMargins(.top, 5, for: .scrollContent)
                         }
                     }
                 }
@@ -135,16 +177,17 @@ private struct CategoryRow: View {
         HStack(spacing: 12) {
             Image(systemName: "folder.fill")
                 .font(.title3)
-                .foregroundStyle(.blue)
+                .foregroundStyle(AppTheme.accent)
             
             VStack(alignment: .leading, spacing: 2) {
                 Text(category.name ?? "N/A")
                     .font(.body)
                     .fontWeight(.medium)
+                    .foregroundStyle(AppTheme.primaryText)
                 
                 Text("\(category.category_product?.count ?? 0) Products")
                     .font(.caption)
-                    .foregroundStyle(.secondary)
+                    .foregroundStyle(AppTheme.secondaryText)
             }
             Spacer()
             
@@ -152,7 +195,7 @@ private struct CategoryRow: View {
                 onEdit()
             } label: {
                 Image(systemName: "pencil")
-                    .foregroundStyle(.gray)
+                    .foregroundStyle(AppTheme.secondaryText)
             }
             .buttonStyle(.borderless)
         }

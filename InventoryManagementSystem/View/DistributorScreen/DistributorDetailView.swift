@@ -12,7 +12,7 @@ struct DistributorDetailView: View {
     
     @Environment(\.dismiss) private var dismiss
     @ObservedObject var distributor: Distributor
-    @StateObject private var distributorViewModel = DistributorViewModel()
+    @EnvironmentObject var distributorViewModel: DistributorViewModel
     
     @State private var showEditSheet = false
     @State private var showDeleteAlert = false
@@ -26,7 +26,12 @@ struct DistributorDetailView: View {
     }
     
     private var totalStock: Int {
-        Int(product?.quantity ?? 0)
+        (distributor.distributor_order as? Set<Order>)?
+            .filter { ($0.status ?? "").lowercased() == "delivered" }
+            .reduce(0) { total, order in
+                let items = (order.order_orderItem as? Set<OrderItem>) ?? []
+                return total + items.reduce(0) { $0 + Int($1.quantity) }
+            } ?? 0
     }
     
     var body: some View {
@@ -55,14 +60,14 @@ struct DistributorDetailView: View {
                     showEditSheet = true
                 } label: {
                     Image(systemName: "square.and.pencil")
-                        .foregroundStyle(.blue)
+                        .foregroundStyle(AppTheme.accent)
                 }
                 
                 Button(role: .destructive) {
                     showDeleteAlert = true
                 } label: {
                     Image(systemName: "trash")
-                        .foregroundStyle(.red)
+                        .foregroundStyle(AppTheme.danger)
                 }
             }
         }
@@ -89,16 +94,16 @@ struct DistributorDetailView: View {
                     .resizable()
                     .scaledToFill()
                     .frame(width: 100, height: 100)
-                    .clipShape(RoundedRectangle(cornerRadius: 16))
+                    .clipShape(RoundedRectangle(cornerRadius: 14))
             } else {
                 ZStack {
-                    RoundedRectangle(cornerRadius: 16)
-                        .fill(Color.blue.opacity(0.12))
+                    RoundedRectangle(cornerRadius: 14)
+                        .fill(AppTheme.accent.opacity(0.12))
                         .frame(width: 100, height: 100)
                     
                     Image(systemName: "truck.box.fill")
                         .font(.system(size: 40))
-                        .foregroundStyle(.blue)
+                        .foregroundStyle(AppTheme.accent)
                 }
             }
             
@@ -106,30 +111,37 @@ struct DistributorDetailView: View {
                 Text(distributor.name ?? "Unnamed Distributor")
                     .font(.title2)
                     .fontWeight(.bold)
+                    .foregroundStyle(AppTheme.primaryText)
                     .multilineTextAlignment(.center)
                 
                 Text(product == nil ? "No product assigned" : "Supplies \(product?.name ?? "a product")")
                     .font(.subheadline)
-                    .foregroundStyle(.secondary)
+                    .foregroundStyle(AppTheme.secondaryText)
             }
         }
         .frame(maxWidth: .infinity)
         .padding()
-        .background(Color(.secondarySystemGroupedBackground))
-        .clipShape(RoundedRectangle(cornerRadius: 20))
+        .background(
+            RoundedRectangle(cornerRadius: 14)
+                .fill(AppTheme.cardBackground)
+        )
+        .overlay(
+            RoundedRectangle(cornerRadius: 14)
+                .stroke(Color.primary.opacity(0.06), lineWidth: 1)
+        )
     }
     
     private var statsGrid: some View {
         LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible())], spacing: 12) {
             DistributorStatCard(
                 icon: "cube.box.fill",
-                color: .blue,
+                color: AppTheme.accent,
                 value: "\(product == nil ? 0 : 1)",
                 label: "Total Products"
             )
             DistributorStatCard(
                 icon: "shippingbox.fill",
-                color: .orange,
+                color: AppTheme.warning,
                 value: "\(totalStock)",
                 label: "Total Stock"
             )
@@ -141,9 +153,10 @@ struct DistributorDetailView: View {
             HStack(spacing: 8) {
                 Image(systemName: "info.circle.fill")
                     .font(.headline)
-                    .foregroundStyle(.blue)
+                    .foregroundStyle(AppTheme.accent)
                 Text("Distributor Information")
                     .font(.headline)
+                    .foregroundStyle(AppTheme.primaryText)
             }
             
             Divider()
@@ -169,10 +182,16 @@ struct DistributorDetailView: View {
                 value: distributor.address?.isEmpty == false ? distributor.address! : "N/A"
             )
         }
-        .padding()
+        .padding(16)
         .frame(maxWidth: .infinity, alignment: .leading)
-        .background(Color(.secondarySystemGroupedBackground))
-        .clipShape(RoundedRectangle(cornerRadius: 16))
+        .background(
+            RoundedRectangle(cornerRadius: 14)
+                .fill(AppTheme.cardBackground)
+        )
+        .overlay(
+            RoundedRectangle(cornerRadius: 14)
+                .stroke(Color.primary.opacity(0.06), lineWidth: 1)
+        )
     }
     
     private var productSection: some View {
@@ -180,9 +199,10 @@ struct DistributorDetailView: View {
             HStack(spacing: 8) {
                 Image(systemName: "cube.box")
                     .font(.headline)
-                    .foregroundStyle(.blue)
+                    .foregroundStyle(AppTheme.accent)
                 Text("Product Supplied")
                     .font(.headline)
+                    .foregroundStyle(AppTheme.primaryText)
             }
             
             Divider()
@@ -198,35 +218,41 @@ struct DistributorDetailView: View {
                 VStack(spacing: 10) {
                     Image(systemName: "cube.box")
                         .font(.system(size: 40))
-                        .foregroundStyle(.gray.opacity(0.5))
+                        .foregroundStyle(AppTheme.secondaryText.opacity(0.5))
                     Text("No Product")
                         .font(.subheadline)
                         .fontWeight(.medium)
-                        .foregroundStyle(.secondary)
+                        .foregroundStyle(AppTheme.secondaryText)
                     Text("This distributor has not been assigned any product yet.")
                         .font(.caption)
-                        .foregroundStyle(.secondary)
+                        .foregroundStyle(AppTheme.secondaryText)
                 }
                 .frame(maxWidth: .infinity)
                 .padding(.vertical, 24)
             }
         }
-        .padding()
+        .padding(16)
         .frame(maxWidth: .infinity, alignment: .leading)
-        .background(Color(.secondarySystemGroupedBackground))
-        .clipShape(RoundedRectangle(cornerRadius: 16))
+        .background(
+            RoundedRectangle(cornerRadius: 14)
+                .fill(AppTheme.cardBackground)
+        )
+        .overlay(
+            RoundedRectangle(cornerRadius: 14)
+                .stroke(Color.primary.opacity(0.06), lineWidth: 1)
+        )
     }
     
     private func infoRow(icon: String, label: String, value: String) -> some View {
         HStack(spacing: 8) {
             HStack(spacing: 8) {
                 Image(systemName: icon)
-                    .foregroundStyle(.secondary)
+                    .foregroundStyle(AppTheme.secondaryText)
                     .frame(width: 20)
                 Text(label)
                     .font(.subheadline)
                     .fontWeight(.bold)
-                    .foregroundStyle(.secondary)
+                    .foregroundStyle(AppTheme.secondaryText)
             }
             
             Spacer()
@@ -234,7 +260,7 @@ struct DistributorDetailView: View {
             Text(value)
                 .font(.subheadline)
                 .fontWeight(.medium)
-                .foregroundStyle(.primary)
+                .foregroundStyle(AppTheme.primaryText)
                 .multilineTextAlignment(.trailing)
         }
     }
@@ -257,17 +283,23 @@ private struct DistributorStatCard: View {
             
             Text(value)
                 .font(.system(size: 24, weight: .bold))
-                .foregroundStyle(.primary)
+                .foregroundStyle(AppTheme.primaryText)
             
             Text(label)
                 .font(.caption)
                 .fontWeight(.medium)
-                .foregroundStyle(.gray)
+                .foregroundStyle(AppTheme.secondaryText)
         }
         .frame(maxWidth: .infinity, alignment: .leading)
         .padding(14)
-        .background(Color(.secondarySystemGroupedBackground))
-        .clipShape(RoundedRectangle(cornerRadius: 16))
+        .background(
+            RoundedRectangle(cornerRadius: 14)
+                .fill(AppTheme.cardBackground)
+        )
+        .overlay(
+            RoundedRectangle(cornerRadius: 14)
+                .stroke(Color.primary.opacity(0.06), lineWidth: 1)
+        )
     }
 }
 
@@ -283,10 +315,10 @@ private struct DistributorProductRow: View {
                         .scaledToFill()
                 } else {
                     RoundedRectangle(cornerRadius: 8)
-                        .fill(Color.blue.opacity(0.15))
+                        .fill(AppTheme.accent.opacity(0.15))
                         .overlay(
                             Image(systemName: "cube.fill")
-                                .foregroundStyle(.blue)
+                                .foregroundStyle(AppTheme.accent)
                         )
                 }
             }
@@ -297,12 +329,12 @@ private struct DistributorProductRow: View {
                 Text(product.name ?? "Unnamed Product")
                     .font(.subheadline)
                     .fontWeight(.medium)
-                    .foregroundStyle(.primary)
+                    .foregroundStyle(AppTheme.primaryText)
                     .lineLimit(1)
                 
                 Text(product.product_category?.name ?? "Uncategorized")
                     .font(.caption)
-                    .foregroundStyle(.gray)
+                    .foregroundStyle(AppTheme.secondaryText)
             }
             
             Spacer()
@@ -311,15 +343,16 @@ private struct DistributorProductRow: View {
                 Text(product.price.formatted(.currency(code: "INR")))
                     .font(.subheadline)
                     .fontWeight(.semibold)
+                    .foregroundStyle(AppTheme.primaryText)
                 
                 HStack(spacing: 4) {
                     Circle()
-                        .fill(product.quantity > 0 ? Color.green : Color.red)
+                        .fill(product.quantity > 0 ? AppTheme.success : AppTheme.danger)
                         .frame(width: 6, height: 6)
                     Text("Qty: \(product.quantity)")
                         .font(.caption)
                         .fontWeight(.medium)
-                        .foregroundStyle(product.quantity > 0 ? .green : .red)
+                        .foregroundStyle(product.quantity > 0 ? AppTheme.success : AppTheme.danger)
                 }
             }
         }

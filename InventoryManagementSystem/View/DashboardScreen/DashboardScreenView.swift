@@ -18,6 +18,7 @@ struct DashboardScreenView: View {
     @StateObject private var session = SessionManager.shared
     @StateObject private var dashboardViewModel = DashboardViewModel()
     @StateObject private var stockViewModel = StockViewModel()
+    @State private var showProfileSheet = false
     
     var body: some View {
         NavigationStack {
@@ -33,69 +34,56 @@ struct DashboardScreenView: View {
                                 Text("Inventora")
                                     .font(.title3)
                                     .fontWeight(.medium)
-                                    .foregroundStyle(.blue)
+                                    .foregroundStyle(AppTheme.accent)
                                 
                                 Text("Dashboard")
                                     .font(.system(size: 34, weight: .bold))
-                                    .foregroundStyle(.primary)
+                                    .foregroundStyle(AppTheme.primaryText)
                             }
                             
                             Spacer()
                             
                             Button {
-                                session.logout()
+                                showProfileSheet = true
                             } label: {
-                                HStack(spacing: 6) {
-                                    Image(systemName: "rectangle.portrait.and.arrow.right")
-                                        .font(.subheadline)
-                                    Text("Logout")
-                                        .font(.subheadline)
-                                        .fontWeight(.semibold)
+                                if let imageData = session.currentAdmin?.imageData,
+                                   let image = UIImage(data: imageData) {
+                                    Image(uiImage: image)
+                                        .resizable()
+                                        .scaledToFill()
+                                        .frame(width: 45, height: 45)
+                                        .clipShape(Circle())
+                                        .overlay(
+                                            Circle()
+                                                .stroke(AppTheme.accent.opacity(0.3), lineWidth: 1.5)
+                                        )
+                                } else {
+                                    Image(systemName: "person.crop.circle.fill")
+                                        .font(.system(size: 40))
+                                        .foregroundStyle(AppTheme.secondaryText)
                                 }
-                                .foregroundStyle(.red)
-                                .padding(.horizontal, 12)
-                                .padding(.vertical, 6)
-                                .background(Color.red.opacity(0.1))
-                                .clipShape(Capsule())
                             }
-                            .padding(.top, 4)
+                            .padding(.top, 6)
+                            .padding(.horizontal, 6)
                         }
                         
                         LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible())], spacing: 12) {
                             MetricCard(
                                 iconName: "square.fill",
-                                iconColor: .blue,
+                                iconColor: AppTheme.accent,
                                 mainValue: "\(dashboardViewModel.totalProducts)",
                                 label: "Total Products",
                                 subtext: dashboardViewModel.totalProducts == 1 ? "1 product listed" : "\(dashboardViewModel.totalProducts) products listed",
-                                subtextColor: .gray
+                                subtextColor: AppTheme.secondaryText
                             )
                             
                             MetricCard(
                                 iconName: "square.fill",
-                                iconColor: .orange,
-                                mainValue: "\(dashboardViewModel.totalStock)",
+                                iconColor: AppTheme.warning,
+                                mainValue: INRCompactFormatter.string(from: dashboardViewModel.totalStock),
                                 label: "Total Stock",
                                 subtext: "Units in inventory",
-                                subtextColor: .gray
-                            )
-                            
-                            MetricCard(
-                                iconName: "square.fill",
-                                iconColor: .orange,
-                                mainValue: "\(dashboardViewModel.lowStockCount)",
-                                label: "Low Stock",
-                                subtext: dashboardViewModel.lowStockCount == 0 ? "All good" : "Needs attention",
-                                subtextColor: .orange
-                            )
-                            
-                            MetricCard(
-                                iconName: "square.fill",
-                                iconColor: .red,
-                                mainValue: "\(dashboardViewModel.outOfStockCount)",
-                                label: "Out of Stock",
-                                subtext: dashboardViewModel.outOfStockCount == 0 ? "Stock available" : "Urgent action",
-                                subtextColor: .red
+                                subtextColor: AppTheme.secondaryText
                             )
                             
                             MetricCard(
@@ -104,7 +92,7 @@ struct DashboardScreenView: View {
                                 mainValue: "\(dashboardViewModel.ordersToday)",
                                 label: "Orders Today",
                                 subtext: dashboardViewModel.ordersToday == 1 ? "1 order placed" : "\(dashboardViewModel.ordersToday) orders placed",
-                                subtextColor: .gray
+                                subtextColor: AppTheme.secondaryText
                             )
                             
                             MetricCard(
@@ -113,7 +101,7 @@ struct DashboardScreenView: View {
                                 mainValue: INRCompactFormatter.string(from: dashboardViewModel.totalStockValue),
                                 label: "Inventory Value",
                                 subtext: "Value of total stock",
-                                subtextColor: .gray
+                                subtextColor: AppTheme.secondaryText
                             )
                             
                             Button {
@@ -125,7 +113,7 @@ struct DashboardScreenView: View {
                                     mainValue: "\(dashboardViewModel.suppliers.count)",
                                     label: "Suppliers",
                                     subtext: "Registered suppliers",
-                                    subtextColor: .gray
+                                    subtextColor: AppTheme.secondaryText
                                 )
                             }
                             .buttonStyle(.plain)
@@ -139,7 +127,7 @@ struct DashboardScreenView: View {
                                     mainValue: "\(dashboardViewModel.distributors.count)",
                                     label: "Distributors",
                                     subtext: "Registered distributors",
-                                    subtextColor: .gray
+                                    subtextColor: AppTheme.secondaryText
                                 )
                             }
                             .buttonStyle(.plain)
@@ -150,7 +138,7 @@ struct DashboardScreenView: View {
                                 mainValue: "\(dashboardViewModel.categories.count)",
                                 label: "Categories",
                                 subtext: "Product categories",
-                                subtextColor: .gray
+                                subtextColor: AppTheme.secondaryText
                             )
                         }
                         
@@ -166,6 +154,9 @@ struct DashboardScreenView: View {
                 }
             }
             .navigationBarHidden(true)
+            .sheet(isPresented: $showProfileSheet) {
+                AdminProfileView()
+            }
             .onAppear {
                 dashboardViewModel.fetchAllData()
             }
@@ -199,12 +190,12 @@ struct MetricCard: View {
 
                 Text(label)
                     .font(.system(size: 12, weight: .medium))
-                    .foregroundStyle(.secondary)
+                    .foregroundStyle(AppTheme.secondaryText)
                     .lineLimit(1)
 
                 Text(mainValue)
                     .font(.system(size: 21, weight: .bold))
-                    .foregroundStyle(.primary)
+                    .foregroundStyle(AppTheme.primaryText)
                     .lineLimit(1)
 
                 Text(subtext)
@@ -222,7 +213,7 @@ struct MetricCard: View {
         .background(
             RoundedRectangle(cornerRadius: 14)
                 .fill(
-                    Color(uiColor: .secondarySystemGroupedBackground)
+                    AppTheme.cardBackground
                 )
         )
         .overlay(
@@ -247,26 +238,26 @@ struct RecentOrdersSection: View {
             Text("RECENT ORDERS")
                 .font(.caption)
                 .fontWeight(.semibold)
-                .foregroundStyle(.gray)
+                .foregroundStyle(AppTheme.secondaryText)
                 .padding(.top, 8)
             
             if recentOrders.isEmpty {
                 VStack(spacing: 10) {
                     Image(systemName: "doc.text")
                         .font(.system(size: 40))
-                        .foregroundStyle(.gray.opacity(0.5))
+                        .foregroundStyle(AppTheme.secondaryText.opacity(0.5))
                     Text("No Orders Yet")
                         .font(.subheadline)
                         .fontWeight(.medium)
-                        .foregroundStyle(.secondary)
+                        .foregroundStyle(AppTheme.secondaryText)
                     Text("Create your first order from the Orders tab.")
                         .font(.caption)
-                        .foregroundStyle(.secondary)
+                        .foregroundStyle(AppTheme.secondaryText)
                 }
                 .frame(maxWidth: .infinity)
                 .padding(.vertical, 24)
-                .background(Color(uiColor: .secondarySystemGroupedBackground))
-                .clipShape(RoundedRectangle(cornerRadius: 16))
+                .background(AppTheme.cardBackground)
+                .clipShape(RoundedRectangle(cornerRadius: 14))
             } else {
                 VStack(spacing: 0) {
                     ForEach(recentOrders, id: \.objectID) { order in
@@ -282,8 +273,8 @@ struct RecentOrdersSection: View {
                     }
                 }
                 .padding(.horizontal, 16)
-                .background(Color(uiColor: .secondarySystemGroupedBackground))
-                .clipShape(RoundedRectangle(cornerRadius: 16))
+                .background(AppTheme.cardBackground)
+                .clipShape(RoundedRectangle(cornerRadius: 14))
             }
         }
     }
@@ -308,12 +299,12 @@ private struct RecentOrderRow: View {
                 Text(order.orderNumber ?? "Order")
                     .font(.subheadline)
                     .fontWeight(.semibold)
-                    .foregroundStyle(.primary)
+                    .foregroundStyle(AppTheme.primaryText)
                     .lineLimit(1)
                 
                 Text(order.orderDate?.formatted(date: .abbreviated, time: .omitted) ?? "N/A")
                     .font(.caption2)
-                    .foregroundStyle(.gray)
+                    .foregroundStyle(AppTheme.secondaryText)
             }
             
             Spacer()
@@ -322,7 +313,7 @@ private struct RecentOrderRow: View {
                 Text(order.totalAmount.formatted(.currency(code: "INR")))
                     .font(.subheadline)
                     .fontWeight(.semibold)
-                    .foregroundStyle(.primary)
+                    .foregroundStyle(AppTheme.primaryText)
                 
                 Text(order.orderType?.capitalized ?? "Order")
                     .font(.caption2)
@@ -334,7 +325,7 @@ private struct RecentOrderRow: View {
     }
     
     private var typeColor: Color {
-        order.orderType == "purchase" ? .green : .orange
+        order.orderType == "purchase" ? AppTheme.success : AppTheme.warning
     }
 }
 
@@ -360,11 +351,11 @@ struct RevenueCard: View {
             Text("MONTHLY REVENUE")
                 .font(.caption)
                 .fontWeight(.semibold)
-                .foregroundStyle(.gray)
+                .foregroundStyle(AppTheme.secondaryText)
             
-            Text(totalRevenue.formatted(.currency(code: "INR")))
+            Text(INRCompactFormatter.string(from: totalRevenue))
                 .font(.system(size: 28, weight: .bold))
-                .foregroundStyle(.primary)
+                .foregroundStyle(AppTheme.primaryText)
             
             HStack(alignment: .bottom, spacing: 12) {
                 ForEach(Array(revenue.enumerated()), id: \.offset) { index, item in
@@ -372,12 +363,12 @@ struct RevenueCard: View {
                         Spacer()
                         
                         RoundedRectangle(cornerRadius: 4)
-                            .fill(index == revenue.count - 1 ? Color.blue : Color.blue.opacity(0.25))
+                            .fill(index == revenue.count - 1 ? AppTheme.accent : AppTheme.accent.opacity(0.25))
                             .frame(height: barHeight(for: item.amount))
                         
                         Text(item.month)
                             .font(.caption2)
-                            .foregroundStyle(.gray)
+                            .foregroundStyle(AppTheme.secondaryText)
                     }
                     .frame(maxWidth: .infinity)
                 }
@@ -389,19 +380,19 @@ struct RevenueCard: View {
             HStack {
                 Text("vs last month")
                     .font(.caption)
-                    .foregroundStyle(.gray)
+                    .foregroundStyle(AppTheme.secondaryText)
                 
                 Spacer()
                 
                 Text(String(format: "%+.1f%%", changePercent))
                     .font(.caption)
                     .fontWeight(.bold)
-                    .foregroundStyle(changePercent >= 0 ? .green : .red)
+                    .foregroundStyle(changePercent >= 0 ? AppTheme.success : AppTheme.danger)
             }
         }
         .padding(16)
-        .background(Color(uiColor: .secondarySystemGroupedBackground))
-        .clipShape(RoundedRectangle(cornerRadius: 16))
+        .background(AppTheme.cardBackground)
+        .clipShape(RoundedRectangle(cornerRadius: 14))
     }
 }
 

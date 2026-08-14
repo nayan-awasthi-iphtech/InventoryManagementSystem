@@ -67,14 +67,14 @@ struct SupplierDetailView: View {
                     showEditSheet = true
                 } label: {
                     Image(systemName: "square.and.pencil")
-                        .foregroundStyle(.blue)
+                        .foregroundStyle(AppTheme.accent)
                 }
                 
                 Button(role: .destructive) {
                     showDeleteAlert = true
                 } label: {
                     Image(systemName: "trash")
-                        .foregroundStyle(.red)
+                        .foregroundStyle(AppTheme.danger)
                 }
             }
         }
@@ -101,16 +101,16 @@ struct SupplierDetailView: View {
                     .resizable()
                     .scaledToFill()
                     .frame(width: 100, height: 100)
-                    .clipShape(RoundedRectangle(cornerRadius: 16))
+                    .clipShape(RoundedRectangle(cornerRadius: 14))
             } else {
                 ZStack {
-                    RoundedRectangle(cornerRadius: 16)
-                        .fill(Color.blue.opacity(0.12))
+                    RoundedRectangle(cornerRadius: 14)
+                        .fill(AppTheme.accent.opacity(0.12))
                         .frame(width: 100, height: 100)
                     
                     Image(systemName: "shippingbox.fill")
                         .font(.system(size: 40))
-                        .foregroundStyle(.blue)
+                        .foregroundStyle(AppTheme.accent)
                 }
             }
             
@@ -118,30 +118,37 @@ struct SupplierDetailView: View {
                 Text(supplier.name ?? "Unnamed Supplier")
                     .font(.title2)
                     .fontWeight(.bold)
+                    .foregroundStyle(AppTheme.primaryText)
                     .multilineTextAlignment(.center)
                 
                 Text("\(products.count) Products Supplied")
                     .font(.subheadline)
-                    .foregroundStyle(.secondary)
+                    .foregroundStyle(AppTheme.secondaryText)
             }
         }
         .frame(maxWidth: .infinity)
         .padding()
-        .background(Color(.secondarySystemGroupedBackground))
-        .clipShape(RoundedRectangle(cornerRadius: 20))
+        .background(
+            RoundedRectangle(cornerRadius: 14)
+                .fill(AppTheme.cardBackground)
+        )
+        .overlay(
+            RoundedRectangle(cornerRadius: 14)
+                .stroke(Color.primary.opacity(0.06), lineWidth: 1)
+        )
     }
     
     private var statsGrid: some View {
         LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible())], spacing: 12) {
             SupplierStatCard(
                 icon: "cube.box.fill",
-                color: .blue,
+                color: AppTheme.accent,
                 value: "\(products.count)",
                 label: "Total Products"
             )
             SupplierStatCard(
                 icon: "shippingbox.fill",
-                color: .orange,
+                color: AppTheme.warning,
                 value: "\(totalStock)",
                 label: "Total Stock"
             )
@@ -153,9 +160,10 @@ struct SupplierDetailView: View {
             HStack(spacing: 8) {
                 Image(systemName: "person.crop.circle.badge.plus")
                     .font(.headline)
-                    .foregroundStyle(.blue)
+                    .foregroundStyle(AppTheme.accent)
                 Text("Supplier Information")
                     .font(.headline)
+                    .foregroundStyle(AppTheme.primaryText)
             }
             
             Divider()
@@ -176,22 +184,28 @@ struct SupplierDetailView: View {
                 value: supplier.address?.isEmpty == false ? supplier.address! : "N/A"
             )
         }
-        .padding()
+        .padding(16)
         .frame(maxWidth: .infinity, alignment: .leading)
-        .background(Color(.secondarySystemGroupedBackground))
-        .clipShape(RoundedRectangle(cornerRadius: 16))
+        .background(
+            RoundedRectangle(cornerRadius: 14)
+                .fill(AppTheme.cardBackground)
+        )
+        .overlay(
+            RoundedRectangle(cornerRadius: 14)
+                .stroke(Color.primary.opacity(0.06), lineWidth: 1)
+        )
     }
     
     private func infoRow(icon: String, label: String, value: String) -> some View {
         HStack(spacing: 8) {
             HStack(spacing: 8) {
                 Image(systemName: icon)
-                    .foregroundStyle(.secondary)
+                    .foregroundStyle(AppTheme.secondaryText)
                     .frame(width: 20)
                 Text(label)
                     .font(.subheadline)
                     .fontWeight(.bold)
-                    .foregroundStyle(.secondary)
+                    .foregroundStyle(AppTheme.secondaryText)
             }
             
             Spacer()
@@ -199,7 +213,7 @@ struct SupplierDetailView: View {
             Text(value)
                 .font(.subheadline)
                 .fontWeight(.medium)
-                .foregroundStyle(.primary)
+                .foregroundStyle(AppTheme.primaryText)
                 .multilineTextAlignment(.trailing)
         }
     }
@@ -208,22 +222,29 @@ struct SupplierDetailView: View {
         VStack(alignment: .leading, spacing: 10) {
             HStack(spacing: 8) {
                 Image(systemName: "doc.text")
-                    .foregroundStyle(.blue)
+                    .foregroundStyle(AppTheme.accent)
                 Text("Description")
                     .font(.headline)
+                    .foregroundStyle(AppTheme.primaryText)
             }
             
             Divider()
             
             Text(supplier.supplierDetail?.isEmpty == false ? supplier.supplierDetail! : "No detail for this supplier is available")
                 .font(.subheadline)
-                .foregroundStyle(.secondary)
+                .foregroundStyle(AppTheme.secondaryText)
                 .lineSpacing(4)
         }
-        .padding()
+        .padding(16)
         .frame(maxWidth: .infinity, alignment: .leading)
-        .background(Color(.secondarySystemGroupedBackground))
-        .clipShape(RoundedRectangle(cornerRadius: 16))
+        .background(
+            RoundedRectangle(cornerRadius: 14)
+                .fill(AppTheme.cardBackground)
+        )
+        .overlay(
+            RoundedRectangle(cornerRadius: 14)
+                .stroke(Color.primary.opacity(0.06), lineWidth: 1)
+        )
     }
 }
 

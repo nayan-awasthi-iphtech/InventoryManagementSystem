@@ -3,8 +3,7 @@
 ////  InventoryManagementSystem
 ////
 ////  Created by iPHTech 30 on 12/08/26.
-////
-//
+
 //import SwiftUI
 //import CoreData
 //

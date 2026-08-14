@@ -37,9 +37,9 @@ struct AddEditSupplier: View {
                                 } else {
                                     Image(systemName: "photo.badge.plus")
                                         .font(.system(size: 40))
-                                        .foregroundStyle(.gray)
+                                        .foregroundStyle(AppTheme.secondaryText)
                                         .frame(width: 100, height: 100)
-                                        .background(Color.gray.opacity(0.1))
+                                        .background(AppTheme.secondaryText.opacity(0.1))
                                         .clipShape(RoundedRectangle(cornerRadius: 12))
                                 }
                                 
@@ -76,7 +76,7 @@ struct AddEditSupplier: View {
                             if isContactTooShort {
                                 Text("Must be exactly 10 digits")
                                     .font(.caption)
-                                    .foregroundStyle(.red)
+                                    .foregroundStyle(AppTheme.danger)
                             }
                             
                             Spacer()
@@ -179,7 +179,7 @@ struct AddEditSupplier: View {
     }
     
     private var contactCounterColor: Color {
-        supplierViewModel.supplierContact.count == 10 ? .green : .secondary
+        supplierViewModel.supplierContact.count == 10 ? AppTheme.success : AppTheme.secondaryText
     }
 }
 

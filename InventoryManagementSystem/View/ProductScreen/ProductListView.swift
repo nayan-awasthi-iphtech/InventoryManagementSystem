@@ -24,32 +24,41 @@ struct ProductListView: View {
                     .ignoresSafeArea()
                 
                 VStack(spacing: 0) {
-                    ZStack {
-                        Text("Products")
-                            .font(.system(size: 34, weight: .bold, design: .rounded))
-                            .foregroundStyle(.primary)
-                            .frame(maxWidth: .infinity, alignment: .center)
-                        
-                        HStack {
-                            Spacer()
-                            Button {
-                                showAddSheet = true
-                            } label: {
-                                Image(systemName: "plus")
-                                    .font(.body.weight(.semibold))
-                                    .foregroundStyle(.white)
-                                    .frame(width: 40, height: 40)
-                                    .background(Color.blue)
-                                    .clipShape(Circle())
-                            }
+                    HStack(alignment: .top) {
+                        VStack(alignment: .leading, spacing: 2) {
+                            Text("Inventora")
+                                .font(.title3)
+                                .fontWeight(.medium)
+                                .foregroundStyle(AppTheme.accent)
+                            
+                            Text("Products")
+                                .font(.system(size: 34, weight: .bold))
+                                .foregroundStyle(AppTheme.primaryText)
                         }
-                        .padding(.horizontal, 16)
+                        
+                        Spacer()
+                        
+                        Button {
+                            showAddSheet = true
+                        } label: {
+                            Image(systemName: "plus")
+                                .font(.system(size: 18, weight: .semibold))
+                                .foregroundStyle(.white)
+                                .frame(width: 44, height: 44)
+                                .background(AppTheme.accent)
+                                .clipShape(Circle())
+                                .shadow(color: AppTheme.accent.opacity(0.3), radius: 6, y: 3)
+                        }
+                        .padding(.top, 4)
                     }
+                    .padding(.horizontal, 16)
                     .padding(.top, 8)
+                    .padding(.bottom, 4)
                     
                     HStack(spacing: 8) {
                         Image(systemName: "magnifyingglass")
-                            .foregroundStyle(.gray)
+                            .font(.subheadline)
+                            .foregroundStyle(AppTheme.secondaryText)
                         
                         TextField("Search name, SKU or barcode", text: $productViewModel.searchText)
                             .autocorrectionDisabled()
@@ -59,17 +68,23 @@ struct ProductListView: View {
                                 productViewModel.searchText = ""
                             } label: {
                                 Image(systemName: "xmark.circle.fill")
-                                    .foregroundStyle(.gray)
+                                    .foregroundStyle(AppTheme.secondaryText)
                             }
                         }
                     }
                     .padding(.horizontal, 12)
                     .frame(height: 44)
-                    .background(Color.white)
-                    .clipShape(Capsule())
-                    .overlay(Capsule().stroke(Color.gray.opacity(0.2), lineWidth: 1))
+                    .background(
+                        RoundedRectangle(cornerRadius: 14)
+                            .fill(AppTheme.cardBackground)
+                    )
+                    .overlay(
+                        RoundedRectangle(cornerRadius: 14)
+                            .stroke(Color.primary.opacity(0.06), lineWidth: 1)
+                    )
                     .padding(.horizontal, 16)
-                    .padding(.top, 12)
+                    .padding(.top, 8)
+                    .padding(.bottom, 6)
                     
                     Group {
                         if productViewModel.products.isEmpty {
@@ -83,7 +98,19 @@ struct ProductListView: View {
                                 ForEach(productViewModel.products) { product in
                                     NavigationLink(destination: ProductDetailPage(product: product).environmentObject(productViewModel)){
                                         ProductRow(product: product)
+                                            .padding(10)
+                                            .background(
+                                                RoundedRectangle(cornerRadius: 14)
+                                                    .fill(AppTheme.cardBackground)
+                                            )
+                                            .overlay(
+                                                RoundedRectangle(cornerRadius: 14)
+                                                    .stroke(Color.primary.opacity(0.06), lineWidth: 1)
+                                            )
                                     }
+                                    .listRowBackground(Color.clear)
+                                    .listRowInsets(EdgeInsets(top: 2, leading: 16, bottom: 4, trailing: 16))
+                                    .listRowSeparator(.hidden)
                                     .swipeActions(edge: .trailing, allowsFullSwipe: false) {
                                         Button(role: .destructive) {
                                             productToDelete = product
@@ -95,6 +122,7 @@ struct ProductListView: View {
                                 }
                             }
                             .scrollContentBackground(.hidden)
+                            .contentMargins(.top, 6, for: .scrollContent)
                         }
                     }
                 }
@@ -137,10 +165,10 @@ struct ProductListView: View {
                             .scaledToFill()
                     } else {
                         RoundedRectangle(cornerRadius: 8)
-                            .fill(Color.blue.opacity(0.15))
+                            .fill(AppTheme.accent.opacity(0.15))
                             .overlay(
                                 Image(systemName: "cube.fill")
-                                    .foregroundStyle(.blue)
+                                    .foregroundStyle(AppTheme.accent)
                             )
                     }
                 }
@@ -150,11 +178,12 @@ struct ProductListView: View {
                 VStack(alignment: .leading, spacing: 4) {
                     Text(product.name ?? "Unnamed Product")
                         .font(.headline)
+                        .foregroundStyle(AppTheme.primaryText)
                         .lineLimit(1)
                     
                     Text(product.product_category?.name ?? "No Category")
                         .font(.caption)
-                        .foregroundStyle(.gray)
+                        .foregroundStyle(AppTheme.secondaryText)
                 }
                 
                 Spacer()
@@ -163,11 +192,12 @@ struct ProductListView: View {
                     Text(product.price.formatted(.currency(code: "INR")))
                         .font(.subheadline)
                         .fontWeight(.semibold)
+                        .foregroundStyle(AppTheme.primaryText)
                     
                     Text("Qty: \(product.quantity)")
                         .font(.caption)
                         .fontWeight(.medium)
-                        .foregroundStyle(product.quantity > 0 ? .green : .red)
+                        .foregroundStyle(product.quantity > 0 ? AppTheme.success : AppTheme.danger)
                 }
             }
             .padding(.vertical, 4)

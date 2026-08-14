@@ -60,14 +60,14 @@ struct CategoryDetailView: View {
                     showEditSheet = true
                 } label: {
                     Image(systemName: "square.and.pencil")
-                        .foregroundStyle(.blue)
+                        .foregroundStyle(AppTheme.accent)
                 }
                 
                 Button(role: .destructive) {
                     showDeleteAlert = true
                 } label: {
                     Image(systemName: "trash")
-                        .foregroundStyle(.red)
+                        .foregroundStyle(AppTheme.danger)
                 }
             }
         }
@@ -90,55 +90,62 @@ struct CategoryDetailView: View {
     private var header: some View {
         HStack(alignment: .top, spacing: 16) {
             ZStack {
-                RoundedRectangle(cornerRadius: 16)
-                    .fill(Color.blue.opacity(0.12))
+                RoundedRectangle(cornerRadius: 14)
+                    .fill(AppTheme.accent.opacity(0.12))
                     .frame(width: 80, height: 80)
                 
                 Image(systemName: "folder.fill")
                     .font(.system(size: 36))
-                    .foregroundStyle(.blue)
+                    .foregroundStyle(AppTheme.accent)
             }
             
             VStack(alignment: .leading, spacing: 6) {
                 Text(category.name ?? "Unnamed Category")
                     .font(.title2)
                     .fontWeight(.bold)
+                    .foregroundStyle(AppTheme.primaryText)
                 
                 Text("\(products.count) Products")
                     .font(.subheadline)
-                    .foregroundStyle(.secondary)
+                    .foregroundStyle(AppTheme.secondaryText)
             }
             
             Spacer()
         }
         .padding()
-        .background(Color(.secondarySystemGroupedBackground))
-        .clipShape(RoundedRectangle(cornerRadius: 20))
+        .background(
+            RoundedRectangle(cornerRadius: 14)
+                .fill(AppTheme.cardBackground)
+        )
+        .overlay(
+            RoundedRectangle(cornerRadius: 14)
+                .stroke(Color.primary.opacity(0.06), lineWidth: 1)
+        )
     }
     
     private var statsGrid: some View {
         LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible())], spacing: 12) {
             CategoryStatCard(
                 icon: "cube.box.fill",
-                color: .blue,
+                color: AppTheme.accent,
                 value: "\(products.count)",
                 label: "Total Products"
             )
             CategoryStatCard(
                 icon: "shippingbox.fill",
-                color: .orange,
+                color: AppTheme.warning,
                 value: "\(totalStock)",
                 label: "Total Stock"
             )
             CategoryStatCard(
                 icon: "exclamationmark.triangle.fill",
-                color: .yellow,
+                color: AppTheme.warning,
                 value: "\(lowStockCount)",
                 label: "Low Stock"
             )
             CategoryStatCard(
                 icon: "xmark.octagon.fill",
-                color: .red,
+                color: AppTheme.danger,
                 value: "\(outOfStockCount)",
                 label: "Out of Stock"
             )
@@ -150,9 +157,10 @@ struct CategoryDetailView: View {
             HStack(spacing: 8) {
                 Image(systemName: "cube.box")
                     .font(.headline)
-                    .foregroundStyle(.blue)
+                    .foregroundStyle(AppTheme.accent)
                 Text("Products in this Category")
                     .font(.headline)
+                    .foregroundStyle(AppTheme.primaryText)
             }
             
             Divider()
@@ -161,14 +169,14 @@ struct CategoryDetailView: View {
                 VStack(spacing: 10) {
                     Image(systemName: "cube.box")
                         .font(.system(size: 40))
-                        .foregroundStyle(.gray.opacity(0.5))
+                        .foregroundStyle(AppTheme.secondaryText.opacity(0.5))
                     Text("No Products")
                         .font(.subheadline)
                         .fontWeight(.medium)
-                        .foregroundStyle(.secondary)
+                        .foregroundStyle(AppTheme.secondaryText)
                     Text("This category has no products yet.")
                         .font(.caption)
-                        .foregroundStyle(.secondary)
+                        .foregroundStyle(AppTheme.secondaryText)
                 }
                 .frame(maxWidth: .infinity)
                 .padding(.vertical, 24)
@@ -190,10 +198,16 @@ struct CategoryDetailView: View {
                 }
             }
         }
-        .padding()
+        .padding(16)
         .frame(maxWidth: .infinity, alignment: .leading)
-        .background(Color(.secondarySystemGroupedBackground))
-        .clipShape(RoundedRectangle(cornerRadius: 16))
+        .background(
+            RoundedRectangle(cornerRadius: 14)
+                .fill(AppTheme.cardBackground)
+        )
+        .overlay(
+            RoundedRectangle(cornerRadius: 14)
+                .stroke(Color.primary.opacity(0.06), lineWidth: 1)
+        )
     }
 }
 
@@ -214,17 +228,23 @@ private struct CategoryStatCard: View {
             
             Text(value)
                 .font(.system(size: 24, weight: .bold))
-                .foregroundStyle(.primary)
+                .foregroundStyle(AppTheme.primaryText)
             
             Text(label)
                 .font(.caption)
                 .fontWeight(.medium)
-                .foregroundStyle(.gray)
+                .foregroundStyle(AppTheme.secondaryText)
         }
         .frame(maxWidth: .infinity, alignment: .leading)
         .padding(14)
-        .background(Color(.secondarySystemGroupedBackground))
-        .clipShape(RoundedRectangle(cornerRadius: 16))
+        .background(
+            RoundedRectangle(cornerRadius: 14)
+                .fill(AppTheme.cardBackground)
+        )
+        .overlay(
+            RoundedRectangle(cornerRadius: 14)
+                .stroke(Color.primary.opacity(0.06), lineWidth: 1)
+        )
     }
 }
 
@@ -240,10 +260,10 @@ private struct CategoryProductRow: View {
                         .scaledToFill()
                 } else {
                     RoundedRectangle(cornerRadius: 8)
-                        .fill(Color.blue.opacity(0.15))
+                        .fill(AppTheme.accent.opacity(0.15))
                         .overlay(
                             Image(systemName: "cube.fill")
-                                .foregroundStyle(.blue)
+                                .foregroundStyle(AppTheme.accent)
                         )
                 }
             }
@@ -254,12 +274,12 @@ private struct CategoryProductRow: View {
                 Text(product.name ?? "Unnamed Product")
                     .font(.subheadline)
                     .fontWeight(.medium)
-                    .foregroundStyle(.primary)
+                    .foregroundStyle(AppTheme.primaryText)
                     .lineLimit(1)
                 
                 Text(product.sku?.isEmpty == false ? "SKU: \(product.sku!)" : "No SKU")
                     .font(.caption)
-                    .foregroundStyle(.gray)
+                    .foregroundStyle(AppTheme.secondaryText)
             }
             
             Spacer()
@@ -268,11 +288,12 @@ private struct CategoryProductRow: View {
                 Text(product.price.formatted(.currency(code: "INR")))
                     .font(.subheadline)
                     .fontWeight(.semibold)
+                    .foregroundStyle(AppTheme.primaryText)
                 
                 Text("Qty: \(product.quantity)")
                     .font(.caption)
                     .fontWeight(.medium)
-                    .foregroundStyle(product.quantity > 0 ? .green : .red)
+                    .foregroundStyle(product.quantity > 0 ? AppTheme.success : AppTheme.danger)
             }
         }
         .padding(.vertical, 8)

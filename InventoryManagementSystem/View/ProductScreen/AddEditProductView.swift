@@ -33,14 +33,14 @@ struct AddEditProductView: View {
                         VStack(alignment: .leading, spacing: 6) {
                             HStack {
                                 Image(systemName: "exclamationmark.triangle.fill")
-                                    .foregroundStyle(.orange)
+                                    .foregroundStyle(AppTheme.warning)
                                 Text("Cannot Add Product")
                                     .font(.headline)
                             }
                             
                             Text("You must create at least one **Category** and one **Supplier** before adding a new product.")
                                 .font(.caption)
-                                .foregroundStyle(.secondary)
+                                .foregroundStyle(AppTheme.secondaryText)
                         }
                         .padding(.vertical, 4)
                     }
@@ -59,9 +59,9 @@ struct AddEditProductView: View {
                             } else {
                                 Image(systemName: "photo.badge.plus")
                                     .font(.system(size: 40))
-                                    .foregroundStyle(.gray)
+                                    .foregroundStyle(AppTheme.secondaryText)
                                     .frame(width: 100, height: 100)
-                                    .background(Color.gray.opacity(0.1))
+                                    .background(AppTheme.secondaryText.opacity(0.1))
                                     .clipShape(RoundedRectangle(cornerRadius: 12))
                             }
                             

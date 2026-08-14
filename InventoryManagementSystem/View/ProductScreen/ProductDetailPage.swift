@@ -34,20 +34,24 @@ struct ProductDetailPage: View {
                             .resizable()
                             .scaledToFill()
                             .frame(width: 150, height: 150)
-                            .clipShape(RoundedRectangle(cornerRadius: 16))
+                            .clipShape(RoundedRectangle(cornerRadius: 14))
                     } else {
                         ZStack {
-                            RoundedRectangle(cornerRadius: 16)
-                                .fill(Color(.systemGray6))
-                                .frame(width:160, height: 150)
+                            RoundedRectangle(cornerRadius: 14)
+                                .fill(AppTheme.cardBackground)
+                                .overlay(
+                                    RoundedRectangle(cornerRadius: 14)
+                                        .stroke(Color.primary.opacity(0.06), lineWidth: 1)
+                                )
+                                .frame(width: 150, height: 150)
                             
                             VStack(spacing: 8) {
                                 Image(systemName: "shippingbox.fill")
                                     .font(.system(size: 48))
-                                    .foregroundStyle(.gray)
+                                    .foregroundStyle(AppTheme.secondaryText)
                                 Text("No Image Available")
                                     .font(.caption)
-                                    .foregroundStyle(.gray)
+                                    .foregroundStyle(AppTheme.secondaryText)
                             }
                         }
                     }
@@ -57,6 +61,7 @@ struct ProductDetailPage: View {
                             Text(product.name ?? "")
                                 .font(.title2)
                                 .fontWeight(.bold)
+                                .foregroundStyle(AppTheme.primaryText)
                             
                             if let categoryName = product.product_category?.name {
                                 Text(categoryName)
@@ -64,8 +69,8 @@ struct ProductDetailPage: View {
                                     .fontWeight(.medium)
                                     .padding(.horizontal, 10)
                                     .padding(.vertical, 4)
-                                    .background(Color.blue.opacity(0.12))
-                                    .foregroundStyle(.blue)
+                                    .background(AppTheme.accent.opacity(0.12))
+                                    .foregroundStyle(AppTheme.accent)
                                     .clipShape(Capsule())
                             }
                         }
@@ -76,22 +81,28 @@ struct ProductDetailPage: View {
                             Text("₹\(product.price, specifier: "%.2f")")
                                 .font(.title2)
                                 .fontWeight(.bold)
-                                .foregroundStyle(.green)
+                                .foregroundStyle(AppTheme.success)
                             
                             HStack(spacing: 4) {
                                 Circle()
-                                    .fill(product.quantity < 5 ? Color.red : Color.green)
+                                    .fill(product.quantity < 5 ? AppTheme.danger : AppTheme.success)
                                     .frame(width: 8, height: 8)
                                 Text("\(product.quantity) in stock")
                                     .font(.caption)
-                                    .foregroundStyle(.secondary)
+                                    .foregroundStyle(AppTheme.secondaryText)
                             }
                         }
                     }
                 }
-                .padding()
-                .background(Color(.secondarySystemGroupedBackground))
-                .clipShape(RoundedRectangle(cornerRadius: 20))
+                .padding(16)
+                .background(
+                    RoundedRectangle(cornerRadius: 14)
+                        .fill(AppTheme.cardBackground)
+                )
+                .overlay(
+                    RoundedRectangle(cornerRadius: 14)
+                        .stroke(Color.primary.opacity(0.06), lineWidth: 1)
+                )
                 
                 LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible())], spacing: 10){
                     InfoTile(title: "Product ID", value: shortProductID, icon: "number")
@@ -105,9 +116,10 @@ struct ProductDetailPage: View {
                     HStack(spacing: 8) {
                         Image(systemName: "folder.badge.gearshape")
                             .font(.headline)
-                            .foregroundStyle(.blue)
+                            .foregroundStyle(AppTheme.accent)
                         Text("Classification")
                             .font(.headline)
+                            .foregroundStyle(AppTheme.primaryText)
                     }
                     
                     Divider()
@@ -115,12 +127,12 @@ struct ProductDetailPage: View {
                     HStack {
                         HStack(spacing: 8) {
                             Image(systemName: "folder")
-                                .foregroundStyle(.secondary)
+                                .foregroundStyle(AppTheme.secondaryText)
                                 .frame(width: 20)
                             Text("Category")
                                 .font(.subheadline)
                                 .fontWeight(.bold)
-                                .foregroundStyle(.secondary)
+                                .foregroundStyle(AppTheme.secondaryText)
                         }
                         
                         Spacer()
@@ -128,7 +140,7 @@ struct ProductDetailPage: View {
                         Text(product.product_category?.name ?? "Uncategorized")
                             .font(.subheadline)
                             .fontWeight(.medium)
-                            .foregroundStyle(.primary)
+                            .foregroundStyle(AppTheme.primaryText)
                     }
                     
                     Divider()
@@ -137,12 +149,12 @@ struct ProductDetailPage: View {
                     HStack {
                         HStack(spacing: 8) {
                             Image(systemName: "building.2")
-                                .foregroundStyle(.secondary)
+                                .foregroundStyle(AppTheme.secondaryText)
                                 .frame(width: 20)
                             Text("Supplier")
                                 .font(.subheadline)
                                 .fontWeight(.bold)
-                                .foregroundStyle(.secondary)
+                                .foregroundStyle(AppTheme.secondaryText)
                         }
                         
                         Spacer()
@@ -150,33 +162,46 @@ struct ProductDetailPage: View {
                         Text(product.product_Supplier?.name ?? "No Supplier")
                             .font(.subheadline)
                             .fontWeight(.medium)
-                            .foregroundStyle(.primary)
+                            .foregroundStyle(AppTheme.primaryText)
                     }
                 }
-                .padding()
+                .padding(16)
                 .frame(maxWidth: .infinity, alignment: .leading)
-                .background(Color(.secondarySystemGroupedBackground))
-                .clipShape(RoundedRectangle(cornerRadius: 16))
+                .background(
+                    RoundedRectangle(cornerRadius: 14)
+                        .fill(AppTheme.cardBackground)
+                )
+                .overlay(
+                    RoundedRectangle(cornerRadius: 14)
+                        .stroke(Color.primary.opacity(0.06), lineWidth: 1)
+                )
                 
                 VStack(alignment: .leading, spacing: 10){
                     HStack {
                         Image(systemName: "doc.text")
-                            .foregroundStyle(.blue)
+                            .foregroundStyle(AppTheme.accent)
                         Text("Description")
                             .font(.headline)
+                            .foregroundStyle(AppTheme.primaryText)
                     }
                     
                     Divider()
                     
                     Text((product.detail?.isEmpty == false) ? product.detail! : "No detail for this product is available")
                         .font(.subheadline)
-                        .foregroundStyle(.secondary)
+                        .foregroundStyle(AppTheme.secondaryText)
                         .lineSpacing(4)
                 }
-                .padding()
+                .padding(16)
                 .frame(maxWidth: .infinity, alignment: .leading)
-                .background(Color(.secondarySystemGroupedBackground))
-                .clipShape(RoundedRectangle(cornerRadius: 16))
+                .background(
+                    RoundedRectangle(cornerRadius: 14)
+                        .fill(AppTheme.cardBackground)
+                )
+                .overlay(
+                    RoundedRectangle(cornerRadius: 14)
+                        .stroke(Color.primary.opacity(0.06), lineWidth: 1)
+                )
             }
         }
         .navigationBarTitleDisplayMode(.inline)
@@ -187,14 +212,14 @@ struct ProductDetailPage: View {
                     showEditSheet = true
                 } label: {
                     Image(systemName: "square.and.pencil")
-                        .foregroundStyle(.blue)
+                        .foregroundStyle(AppTheme.accent)
                 }
                 
                 Button{
                     showDeleteAlert = true
                 } label: {
                     Image(systemName: "trash")
-                        .foregroundStyle(.red)
+                        .foregroundStyle(AppTheme.danger)
                 }
             }
         }
@@ -223,25 +248,32 @@ struct InfoTile: View {
         HStack(spacing: 12) {
             Image(systemName: icon)
                 .font(.title3)
-                .foregroundStyle(.blue)
+                .foregroundStyle(AppTheme.accent)
                 .frame(width: 36, height: 36)
-                .background(Color.blue.opacity(0.1))
+                .background(AppTheme.accent.opacity(0.1))
                 .clipShape(Circle())
             
             VStack(alignment: .leading, spacing: 2) {
                 Text(title)
                     .font(.caption2)
-                    .foregroundStyle(.gray)
+                    .foregroundStyle(AppTheme.secondaryText)
                 Text(value.isEmpty ? "N/A" : value)
                     .font(.subheadline)
                     .fontWeight(.semibold)
+                    .foregroundStyle(AppTheme.primaryText)
                     .lineLimit(1)
             }
             Spacer()
         }
         .padding(12)
-        .background(Color(.secondarySystemGroupedBackground))
-        .clipShape(RoundedRectangle(cornerRadius: 14))
+        .background(
+            RoundedRectangle(cornerRadius: 14)
+                .fill(AppTheme.cardBackground)
+        )
+        .overlay(
+            RoundedRectangle(cornerRadius: 14)
+                .stroke(Color.primary.opacity(0.06), lineWidth: 1)
+        )
     }
 }
 

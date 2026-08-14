@@ -37,27 +37,34 @@ struct SupplierListView: View {
                 
                 VStack(spacing: 0) {
                     
-                    ZStack {
-                        Text(orderCategory == .supplier ? "Suppliers" : "Distributors")
-                            .font(.system(size: 34, weight: .bold, design: .rounded))
-                            .foregroundStyle(.primary)
-                            .frame(maxWidth: .infinity, alignment: .center)
-                        
-                        HStack {
-                            Spacer()
-                            Button {
-                                showAddSheet = true
-                            } label: {
-                                Image(systemName: "plus")
-                                    .font(.body.weight(.semibold))
-                                    .foregroundStyle(.white)
-                                    .frame(width: 40, height: 40)
-                                    .background(Color.blue)
-                                    .clipShape(Circle())
-                            }
+                    HStack(alignment: .top) {
+                        VStack(alignment: .leading, spacing: 2) {
+                            Text("Inventora")
+                                .font(.title3)
+                                .fontWeight(.medium)
+                                .foregroundStyle(AppTheme.accent)
+                            
+                            Text(orderCategory == .supplier ? "Suppliers" : "Distributors")
+                                .font(.system(size: 34, weight: .bold))
+                                .foregroundStyle(AppTheme.primaryText)
                         }
-                        .padding(.horizontal, 16)
+                        
+                        Spacer()
+                        
+                        Button {
+                            showAddSheet = true
+                        } label: {
+                            Image(systemName: "plus")
+                                .font(.system(size: 18, weight: .semibold))
+                                .foregroundStyle(.white)
+                                .frame(width: 44, height: 44)
+                                .background(AppTheme.accent)
+                                .clipShape(Circle())
+                                .shadow(color: AppTheme.accent.opacity(0.3), radius: 6, y: 3)
+                        }
+                        .padding(.top, 4)
                     }
+                    .padding(.horizontal, 16)
                     .padding(.top, 8)
                     
                     Picker("Section", selection: $orderCategory){
@@ -67,7 +74,8 @@ struct SupplierListView: View {
                     }
                     .pickerStyle(.segmented)
                     .padding(.horizontal, 16)
-                    .padding(.top, 15)
+                    .padding(.top, 10)
+                    .padding(.bottom, 10)
                     
                     Group {
                         
@@ -86,7 +94,19 @@ struct SupplierListView: View {
                                     ForEach(supplierViewModel.suppliers) { supplier in
                                         NavigationLink(destination: SupplierDetailView(supplier: supplier).environmentObject(supplierViewModel)) {
                                             SupplierRow(supplier: supplier)
+                                                .padding(12)
+                                                .background(
+                                                    RoundedRectangle(cornerRadius: 14)
+                                                        .fill(AppTheme.cardBackground)
+                                                )
+                                                .overlay(
+                                                    RoundedRectangle(cornerRadius: 14)
+                                                        .stroke(Color.primary.opacity(0.06), lineWidth: 1)
+                                                )
                                         }
+                                        .listRowBackground(Color.clear)
+                                        .listRowInsets(EdgeInsets(top: 2, leading: 16, bottom: 4, trailing: 16))
+                                        .listRowSeparator(.hidden)
                                         .swipeActions(edge: .trailing, allowsFullSwipe: false) {
                                             Button(role: .destructive) {
                                                 supplierToDelete = supplier
@@ -97,6 +117,7 @@ struct SupplierListView: View {
                                         }
                                     }
                                 }
+                                .contentMargins(.top, 6, for: .scrollContent)
                                 .scrollContentBackground(.hidden)
                             }
                         }
@@ -144,10 +165,10 @@ private struct SupplierRow: View {
                         .scaledToFill()
                 } else {
                     RoundedRectangle(cornerRadius: 8)
-                        .fill(Color.blue.opacity(0.15))
+                        .fill(AppTheme.accent.opacity(0.15))
                         .overlay(
                             Image(systemName: "person.2.fill")
-                                .foregroundStyle(.blue)
+                                .foregroundStyle(AppTheme.accent)
                         )
                         .frame(width: 48, height: 48)
                         .clipShape(RoundedRectangle(cornerRadius: 8))
@@ -159,11 +180,12 @@ private struct SupplierRow: View {
             VStack(alignment: .leading, spacing: 4) {
                 Text(supplier.name ?? "Unnamed Supplier")
                     .font(.headline)
+                    .foregroundStyle(AppTheme.primaryText)
                     .lineLimit(1)
                 
                 Text(supplier.address ?? "Unknown address")
                     .font(.caption)
-                    .foregroundStyle(.gray)
+                    .foregroundStyle(AppTheme.secondaryText)
             }
             
             Spacer()
@@ -173,10 +195,12 @@ private struct SupplierRow: View {
                 Text("Contact No.")
                     .font(.caption)
                     .fontWeight(.bold)
+                    .foregroundStyle(AppTheme.secondaryText)
                 
                 Text(supplier.contact ?? "")
                     .font(.caption)
                     .fontWeight(.medium)
+                    .foregroundStyle(AppTheme.primaryText)
             }
         }
         .padding(.vertical, 4)

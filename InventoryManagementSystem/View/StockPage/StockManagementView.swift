@@ -26,7 +26,7 @@ struct StockManagementSection: View {
             Text("STOCK MANAGEMENT")
                 .font(.caption)
                 .fontWeight(.semibold)
-                .foregroundStyle(.gray)
+                .foregroundStyle(AppTheme.secondaryText)
                 .padding(.top, 8)
             
             VStack(spacing: 14) {
@@ -40,13 +40,13 @@ struct StockManagementSection: View {
                 switch selectedTab {
                 case .stockIn:
                     StockMovementForm(
-                        tint: .green,
+                        tint: AppTheme.success,
                         isStockIn: true,
                         stockViewModel: stockViewModel
                     )
                 case .stockOut:
                     StockMovementForm(
-                        tint: .red,
+                        tint: AppTheme.danger,
                         isStockIn: false,
                         stockViewModel: stockViewModel
                     )
@@ -55,8 +55,14 @@ struct StockManagementSection: View {
                 }
             }
             .padding(16)
-            .background(Color(uiColor: .secondarySystemGroupedBackground))
-            .clipShape(RoundedRectangle(cornerRadius: 16))
+            .background(
+                RoundedRectangle(cornerRadius: 14)
+                    .fill(AppTheme.cardBackground)
+            )
+            .overlay(
+                RoundedRectangle(cornerRadius: 14)
+                    .stroke(Color.primary.opacity(0.06), lineWidth: 1)
+            )
         }
     }
 }
@@ -79,7 +85,7 @@ private struct StockMovementForm: View {
                     Text("In stock: \(product.quantity)")
                         .font(.caption)
                         .fontWeight(.medium)
-                        .foregroundStyle(product.quantity > 0 ? .green : .red)
+                        .foregroundStyle(product.quantity > 0 ? AppTheme.success : AppTheme.danger)
                 }
             }
             
@@ -102,8 +108,14 @@ private struct StockMovementForm: View {
             }
             .padding(.horizontal, 12)
             .frame(height: 44)
-            .background(Color(.systemGray6))
-            .clipShape(RoundedRectangle(cornerRadius: 10))
+            .background(
+                RoundedRectangle(cornerRadius: 10)
+                    .fill(Color(uiColor: .systemGray).opacity(0.06))
+            )
+            .overlay(
+                RoundedRectangle(cornerRadius: 10)
+                    .stroke(Color.primary.opacity(0.06), lineWidth: 1)
+            )
             
             Button {
                 let _ = isStockIn ? stockViewModel.performStockIn() : stockViewModel.performStockOut()
@@ -139,14 +151,14 @@ private struct StockHistoryView: View {
                 VStack(spacing: 10) {
                     Image(systemName: "clock.arrow.circlepath")
                         .font(.system(size: 32))
-                        .foregroundStyle(.gray.opacity(0.5))
+                        .foregroundStyle(AppTheme.secondaryText.opacity(0.5))
                     Text("No Stock History")
                         .font(.subheadline)
                         .fontWeight(.medium)
-                        .foregroundStyle(.secondary)
+                        .foregroundStyle(AppTheme.secondaryText)
                     Text("Stock movements will appear here.")
                         .font(.caption)
-                        .foregroundStyle(.secondary)
+                        .foregroundStyle(AppTheme.secondaryText)
                 }
                 .frame(maxWidth: .infinity)
                 .padding(.vertical, 20)
@@ -190,7 +202,7 @@ private struct StockLogRow: View {
                 
                 Text("\(log.previousQuantity) → \(log.newQuantity)")
                     .font(.caption)
-                    .foregroundStyle(.secondary)
+                    .foregroundStyle(AppTheme.secondaryText)
             }
             
             Spacer()
@@ -203,7 +215,7 @@ private struct StockLogRow: View {
                 
                 Text(log.date?.formatted(date: .abbreviated, time: .shortened) ?? "N/A")
                     .font(.caption2)
-                    .foregroundStyle(.secondary)
+                    .foregroundStyle(AppTheme.secondaryText)
             }
         }
         .padding(.vertical, 6)
@@ -215,10 +227,10 @@ private struct StockLogRow: View {
     
     private var tint: Color {
         switch type {
-        case "stockin", "purchase": return .green
-        case "stockout": return .red
-        case "sale": return .orange
-        default: return .gray
+        case "stockin", "purchase": return AppTheme.success
+        case "stockout": return AppTheme.danger
+        case "sale": return AppTheme.warning
+        default: return AppTheme.secondaryText
         }
     }
     
