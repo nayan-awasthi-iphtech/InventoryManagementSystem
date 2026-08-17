@@ -16,6 +16,8 @@ class AuthViewModel: ObservableObject {
     @Published var name = ""
     @Published var contactNo = ""
     
+    @Published var authModel: AuthModel?
+    
     @Published var isLogin: Bool
     @Published var isPasswordVisible = false
     @Published var showAlert = false
@@ -76,6 +78,7 @@ class AuthViewModel: ObservableObject {
         do {
             let results = try viewContext.fetch(fetchRequest)
             if let loggedAdmin = results.first {
+                authModel = AuthModel(admin: loggedAdmin)
                 SessionManager.shared.login(admin: loggedAdmin)
                 clearFields()
             } else {
@@ -100,17 +103,25 @@ class AuthViewModel: ObservableObject {
                 return
             }
             
-            let newAdmin = Admin(context: viewContext)
-            newAdmin.id = UUID()
-            newAdmin.email = email
-            newAdmin.name = name.trimmingCharacters(in: .whitespacesAndNewlines)
-            newAdmin.password = password.trimmingCharacters(in: .whitespacesAndNewlines)
-            newAdmin.contact = contactNo.trimmingCharacters(in: .whitespacesAndNewlines)
-            newAdmin.timestamp = Date()
+            let cleanEmail = email.trimmingCharacters(in: .whitespacesAndNewlines)
+            let cleanName = name.trimmingCharacters(in: .whitespacesAndNewlines)
+            let cleanPassword = password.trimmingCharacters(in: .whitespacesAndNewlines)
+            let cleanContact = contactNo.trimmingCharacters(in: .whitespacesAndNewlines)
+            
+            authModel = AuthModel(
+                id: UUID(),
+                name: cleanName,
+                email: cleanEmail,
+                password: cleanPassword,
+                contact: cleanContact
+            )
+            let newAdmin = authModel?.toEntity(in: viewContext)
             
             try viewContext.save()
             
-            SessionManager.shared.login(admin: newAdmin)
+            if let admin = newAdmin {
+                SessionManager.shared.login(admin: admin)
+            }
             
             clearFields()
         } catch {

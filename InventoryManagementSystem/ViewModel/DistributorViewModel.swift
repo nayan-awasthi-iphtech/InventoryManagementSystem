@@ -77,6 +77,7 @@ class DistributorViewModel: ObservableObject {
         }
         
         let newDistributor = Distributor(context: viewContext)
+        newDistributor.id = UUID()
         newDistributor.name = cleanedName
         newDistributor.address = cleanedAddress
         newDistributor.contact = cleanedContact

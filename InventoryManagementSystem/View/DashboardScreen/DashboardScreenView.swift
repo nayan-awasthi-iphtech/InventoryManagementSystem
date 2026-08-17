@@ -87,6 +87,15 @@ struct DashboardScreenView: View {
                             )
                             
                             MetricCard(
+                                iconName: "exclamationmark.triangle.fill",
+                                iconColor: .orange,
+                                mainValue: "\(dashboardViewModel.lowStockCount)",
+                                label: "Low Stock Items",
+                                subtext: dashboardViewModel.lowStockCount == 1 ? "1 item running low" : "\(dashboardViewModel.lowStockCount) items running low",
+                                subtextColor: AppTheme.secondaryText
+                            )
+                            
+                            MetricCard(
                                 iconName: "square.fill",
                                 iconColor: .indigo,
                                 mainValue: "\(dashboardViewModel.ordersToday)",

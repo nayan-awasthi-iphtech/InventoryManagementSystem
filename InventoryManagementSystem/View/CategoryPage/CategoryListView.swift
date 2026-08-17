@@ -35,22 +35,6 @@ struct CategoryListView: View {
                                 .font(.system(size: 34, weight: .bold))
                                 .foregroundStyle(AppTheme.primaryText)
                         }
-                        
-                        Spacer()
-                        
-                        Button {
-                            categoryToEdit = nil
-                            showAddSheet = true
-                        } label: {
-                            Image(systemName: "plus")
-                                .font(.system(size: 18, weight: .semibold))
-                                .foregroundStyle(.white)
-                                .frame(width: 44, height: 44)
-                                .background(AppTheme.accent)
-                                .clipShape(Circle())
-                                .shadow(color: AppTheme.accent.opacity(0.3), radius: 6, y: 3)
-                        }
-                        .padding(.top, 4)
                     }
                     .padding(.horizontal, 16)
                     .padding(.top, 8)
