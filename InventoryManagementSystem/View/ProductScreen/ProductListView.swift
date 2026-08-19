@@ -13,6 +13,7 @@ struct ProductListView: View {
     @StateObject var productViewModel = ProductViewModel()
     
     @State private var showAddSheet: Bool = false
+    @State private var showScannerSheet: Bool = false
     @State private var productToDelete: Product?
     @State private var showDeleteAlert: Bool = false
     
@@ -38,18 +39,31 @@ struct ProductListView: View {
                         
                         Spacer()
                         
-                        Button {
-                            showAddSheet = true
-                        } label: {
-                            Image(systemName: "plus")
-                                .font(.system(size: 18, weight: .semibold))
-                                .foregroundStyle(.white)
-                                .frame(width: 44, height: 44)
-                                .background(AppTheme.accent)
-                                .clipShape(Circle())
-                                .shadow(color: AppTheme.accent.opacity(0.3), radius: 6, y: 3)
+                        HStack(spacing: 12) {
+                            Button {
+                                showScannerSheet = true
+                            } label: {
+                                Image(systemName: "barcode.viewfinder")
+                                    .font(.system(size: 17, weight: .semibold))
+                                    .foregroundStyle(AppTheme.accent)
+                                    .frame(width: 44, height: 44)
+                                    .background(AppTheme.accent.opacity(0.12))
+                                    .clipShape(Circle())
+                            }
+                            
+                            Button {
+                                showAddSheet = true
+                            } label: {
+                                Image(systemName: "plus")
+                                    .font(.system(size: 18, weight: .semibold))
+                                    .foregroundStyle(.white)
+                                    .frame(width: 44, height: 44)
+                                    .background(AppTheme.accent)
+                                    .clipShape(Circle())
+                                    .shadow(color: AppTheme.accent.opacity(0.3), radius: 6, y: 3)
+                            }
+                            .padding(.top, 4)
                         }
-                        .padding(.top, 4)
                     }
                     .padding(.horizontal, 16)
                     .padding(.top, 8)
@@ -98,6 +112,7 @@ struct ProductListView: View {
                                 ForEach(productViewModel.products) { product in
                                     NavigationLink(destination: ProductDetailPage(product: product).environmentObject(productViewModel)){
                                         ProductRow(product: product)
+                                            .zIndex(0)
                                             .padding(10)
                                             .background(
                                                 RoundedRectangle(cornerRadius: 14)
@@ -129,6 +144,11 @@ struct ProductListView: View {
                 .sheet(isPresented: $showAddSheet) {
                     AddEditProductView()
                         .environmentObject(productViewModel)
+                }
+                .sheet(isPresented: $showScannerSheet) {
+                    NavigationStack {
+                        BarcodeScannerView()
+                    }
                 }
                 .onChange(of: productViewModel.searchText) {
                     productViewModel.fetchProducts()
